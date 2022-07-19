@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "398685992086",
+    "project_id": "organize-me-dca64",
+    "storage_bucket": "organize-me-dca64.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398685992086:android:ade38874bf848e7b987eb7",
+        "android_client_info": {
+          "package_name": "com.organizeme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "398685992086-6diqmqvgcjfq630m39ctmp051nk9jnno.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.organizeme",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqBeKZDzVZ51ciGd8hTKGW7seQ6eG2oOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
