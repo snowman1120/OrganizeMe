@@ -10,6 +10,8 @@ import Session from '../utils/Session'
 import utils from '../utils/Utils'
 import Alerts from '../utils/Alerts'
 import Loader from '../utils/loader'
+import DropDownPicker from 'react-native-dropdown-picker';
+
 
 const SignUp = ({ navigation }) => {
 
@@ -30,9 +32,16 @@ const SignUp = ({ navigation }) => {
     const [rePassword, setRePassword] = useState("");
     const [openAlert, setOpenAlert] = useState(false)
     const [msg, setMsg] = useState("")
-    const [buttonTxt, setButtonTxt] = useState("")
+    const [buttonTxt, setButtonTxt] = useState("Ok")
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false);
+
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState();
+    const [items, setItems] = useState([
+        { label: 'Male', value: 'Male' },
+        { label: 'Female', value: 'Female' }
+    ]);
 
 
     const emailRef = useRef()
@@ -57,48 +66,61 @@ const SignUp = ({ navigation }) => {
 
     const onSignUpClick = async () => {
         setLoading(true)
-        Session.signUpObj.userName = userName;
-        Session.signUpObj.phone = phone;
-        Session.signUpObj.email = email;
-        Session.signUpObj.countryCode = countryCode;
-        Session.signUpObj.countryName = country.name;
-        Session.signUpObj.countryPhoneCode = country.callingCode[0];
-        if (password == rePassword) {
-            Session.signUpObj.password = password
-        }
-        else {
+        if (userName == "" || phone == "" || email == "" || countryCode == "" || country.name == "" || value == "") {
+            setLoading(false)
+            setMsg("Enter correct details")
             setOpenAlert(true)
-            setMsg("Enter same passwords")
             return
         }
-        console.log(JSON.stringify(Session.signUpObj));
+        else {
+            Session.signUpObj.userName = userName;
+            Session.signUpObj.phone = phone;
+            Session.signUpObj.email = email;
+            Session.signUpObj.countryCode = countryCode;
+            Session.signUpObj.countryName = country.name;
+            Session.signUpObj.countryPhoneCode = country.callingCode[0];
+            Session.signUpObj.gender = value
 
-        await Http.post(Constants.END_POINT_SIGNUP, Session.signUpObj).then((response) => {
-            setLoading(false)
-            console.log("post request ==================");
-            console.log(response.data);
-            if (response.data.success) {
-                setSuccess(true)
-                setButtonTxt("Ok")
-                setMsg(response.data.message)
-                console.log("response.data.data.msg" + JSON.stringify(response.data.message));
-                setOpenAlert(true)
+
+            if (password == rePassword) {
+                Session.signUpObj.password = password
             }
             else {
-                setSuccess(false)
-                setButtonTxt("Cancel")
-                setMsg(response.data.message)
+                setLoading(false)
                 setOpenAlert(true)
-
+                setMsg("Enter same passwords")
+                return
             }
+            console.log(JSON.stringify(Session.signUpObj));
+
+            await Http.post(Constants.END_POINT_SIGNUP, Session.signUpObj).then((response) => {
+                setLoading(false)
+                console.log("post request ==================");
+                console.log(response.data);
+                if (response.data.success) {
+                    setSuccess(true)
+                    setButtonTxt("Ok")
+                    setMsg(response.data.message)
+                    console.log("response.data.data.msg" + JSON.stringify(response.data.message));
+                    setOpenAlert(true)
+                }
+                else {
+                    setSuccess(false)
+                    setButtonTxt("Cancel")
+                    setMsg(response.data.message)
+                    setOpenAlert(true)
+
+                }
 
 
-        }, (error) => {
-            console.log(error);
-            setMsg(error)
-            setOpenAlert(true)
-            // Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
-        })
+            }, (error) => {
+                setLoading(false)
+                console.log(error);
+                setMsg(error)
+                setOpenAlert(true)
+                // Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
+            })
+        }
     }
 
     const confirmPress = () => {
@@ -116,8 +138,8 @@ const SignUp = ({ navigation }) => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE }}>
-            <Loader loading={setLoading}></Loader>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <Loader loading={loading}></Loader>
             <View style={{ margin: 20 }}>
                 <TouchableOpacity>
                     <Icon name='arrow-left' size={25} />
@@ -127,18 +149,32 @@ const SignUp = ({ navigation }) => {
                 <Text style={{ alignSelf: 'center' }}>Let's Get Started</Text>
                 <Text>Create an account to get all features</Text>
             </View>
-            <View style={{ flex: 0.7, width: "100%", marginTop: 20, justifyContent: 'space-around' }}>
+            <View style={{ flex: 0.9, width: "100%", marginTop: 20, justifyContent: 'space-around' }}>
                 <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', width: "80%", backgroundColor: Colors.COLOR_WHITE, elevation: 2, alignSelf: 'center', borderRadius: 20 }}>
                     <Icon name='user' size={20} style={{ marginLeft: 15 }} />
                     <TextInput
-                      autoCapitalize='none'
+                        autoCapitalize='none'
                         onSubmitEditing={() => { emailRef.current.focus() }}
                         placeholder='Jhone Williams'
                         onChangeText={(value) => setUserName(value)}
                         style={{ width: 230, marginLeft: 10 }}
                     />
                 </View>
+                <View style={{ zIndex: 1000 }}>
+                    <DropDownPicker
 
+                        open={open}
+                        value={value}
+                        items={items}
+                        setOpen={setOpen}
+                        setValue={(item) => setValue(item)}
+                        setItems={setItems}
+                        placeholder="Select Gender"
+                        style={{ borderRadius: 20, borderWidth: 0, elevation: 5 }}
+                        containerStyle={{ height: 40, justifyContent: 'center', alignItems: 'center', width: "80%", alignSelf: 'center', borderRadius: 30 }}
+
+                    />
+                </View>
                 <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', width: "80%", backgroundColor: Colors.COLOR_WHITE, elevation: 2, alignSelf: 'center', borderRadius: 20 }}>
                     <Icon name='envelope' size={20} style={{ marginLeft: 15 }} />
                     <TextInput
@@ -154,6 +190,7 @@ const SignUp = ({ navigation }) => {
                     <Icon name='phone' size={20} style={{ marginLeft: 15 }} />
                     <TextInput
                         ref={phoneRef}
+                        keyboardType="numeric"
                         onSubmitEditing={() => { passRef.current.focus() }}
                         placeholder='Phone'
                         onChangeText={(value) => setPhone(value)}
@@ -203,6 +240,7 @@ const SignUp = ({ navigation }) => {
                         onChangeText={(value) => setRePassword(value)}
                         style={{ width: 230, marginLeft: 10 }} />
                 </View>
+
             </View>
 
 

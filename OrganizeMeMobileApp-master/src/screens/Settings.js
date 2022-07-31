@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Switch } from 'react-native'
+import { View, Text, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Switch , StatusBar } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import Colors from '../theme/Colors'
 import FontSize from '../theme/FontSize'
@@ -16,10 +16,7 @@ const ScreenWidth = Dimensions.get('window').width
 
 
 const Settings = ({ navigation }) => {
-
-
     console.log("user object" + JSON.stringify(Session.userObj.userName));
-
     const onLogoutClick = () => {
         console.log("Logout pressed");
         Session.cleanUserObj()
@@ -27,10 +24,8 @@ const Settings = ({ navigation }) => {
         AsyncMemory.storeItem("userObj", null)
         navigation.replace('Login')
     }
-
-
     return (
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }}>
             {/* <View style={{ height: 140, width: ScreenWidth, backgroundColor: Colors.COLOR_THEME }}>
                 <View style={{ flexDirection: "row", alignItems: 'center' }}>
                     <TouchableOpacity style={{ marginTop: 20, marginLeft: 20 }}>
@@ -45,7 +40,23 @@ const Settings = ({ navigation }) => {
 
             {/* </View> */}
             {/* </View>  */}
-
+            <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
+            <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
+                    <TouchableOpacity>
+                        <Icon name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: 10 }} >
+                        <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+                            <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 40, width: 40, borderRadius: 30 }} />
+                            <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+                                <Text style={{ color: 'black', fontSize: 14 }}>Welcome</Text>
+                                <Text style={{ color: 'black', fontSize: 12, fontWeight: 'bold' }}>{Session.userObj.userName}</Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
             <Text style={{
                 marginHorizontal: 20,
@@ -77,7 +88,7 @@ const Settings = ({ navigation }) => {
                         fontSize: 12,
                         color: Colors.COLOR_BLACK,
                         marginTop: 10
-                    }}>logged in as</Text>
+                    }}>Logged in as</Text>
 
 
                     <Text style={{
@@ -99,7 +110,7 @@ const Settings = ({ navigation }) => {
                     {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
                     <Icon name='user' size={25} style={{ marginLeft: 10 }} />
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Profile') }
+                        onPress={() => navigation.navigate('Profile')}
                         style={{
                             height: 60,
                             width: "88%",
@@ -115,36 +126,13 @@ const Settings = ({ navigation }) => {
                         <Text style={{
                             fontSize: 12,
                             color: Colors.COLOR_BLACK
-                        }}>update login credentials or account</Text>
+                        }}>Update login credentials or account</Text>
 
 
                     </TouchableOpacity>
                 </View>
 
 
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='building' size={25} style={{ marginLeft: 10 }} />
-                    <TouchableOpacity style={{
-                        height: 60,
-                        width: "88%",
-                        borderBottomWidth: 0.5,
-                        borderColor: Colors.COLOR_BLACK,
-                        justifyContent: 'center',
-
-                    }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: Colors.COLOR_BLACK
-                        }}>Manage Connections</Text>
-
-
-                    </TouchableOpacity>
-                </View>
 
 
                 <View style={{
@@ -185,7 +173,7 @@ const Settings = ({ navigation }) => {
 
 
             <View style={{
-                height: 270,
+                height: 120,
                 width: ScreenWidth - 30,
                 elevation: 10,
                 backgroundColor: 'white',
@@ -196,50 +184,6 @@ const Settings = ({ navigation }) => {
                 marginBottom: 35
             }}>
 
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='heart' size={25} style={{ marginLeft: 10 }} />
-                    <TouchableOpacity style={{
-                        height: 60,
-                        width: "88%",
-                        borderBottomWidth: 0.5,
-                        borderColor: Colors.COLOR_BLACK,
-                        justifyContent: 'center',
-
-                    }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: Colors.COLOR_BLACK
-                        }}>Write a Review</Text>
-                    </TouchableOpacity>
-                </View>
-
-
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='paper-plane' size={25} style={{ marginLeft: 10 }} />
-                    <TouchableOpacity style={{
-                        height: 60,
-                        width: "88%",
-                        borderBottomWidth: 0.5,
-                        borderColor: Colors.COLOR_BLACK,
-                        justifyContent: 'center',
-
-                    }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: Colors.COLOR_BLACK
-                        }}>Send in Diagnostics</Text>
-                    </TouchableOpacity>
-                </View>
 
                 <View style={{
                     flexDirection: 'row',
@@ -255,29 +199,9 @@ const Settings = ({ navigation }) => {
                         borderColor: Colors.COLOR_BLACK,
                         justifyContent: 'center',
 
-                    }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: Colors.COLOR_BLACK
-                        }}>Legal</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='file' size={25} style={{ marginLeft: 10 }} />
-                    <TouchableOpacity style={{
-                        height: 60,
-                        width: "88%",
-                        borderBottomWidth: 0.5,
-                        borderColor: Colors.COLOR_BLACK,
-                        justifyContent: 'center',
-
-                    }}>
+                    }}
+                        onPress={() => navigation.navigate('WebViews', Session.companySettings.privacyText)}
+                    >
                         <Text style={{
                             fontSize: 14,
                             color: Colors.COLOR_BLACK
@@ -298,7 +222,10 @@ const Settings = ({ navigation }) => {
                         borderColor: Colors.COLOR_BLACK,
                         justifyContent: 'center',
 
-                    }}>
+                    }}
+                        onPress={() => navigation.navigate('WebViews', Session.companySettings.termsText)}
+
+                    >
                         <Text style={{
                             fontSize: 14,
                             color: Colors.COLOR_BLACK

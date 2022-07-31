@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Dimensions, TextInput, TouchableOpacity, FlatList } from 'react-native'
+import { View, Text, Dimensions, TextInput, TouchableOpacity, FlatList, StatusBar } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import Loader from '../utils/loader'
 import Colors from '../theme/Colors'
 import FontSize from '../theme/FontSize'
 import TextStyle from '../theme/TextStyle'
@@ -16,6 +17,7 @@ const Package = ({ navigation }) => {
     const [loading, setLoading] = useState(false)
 
     let arr = Session.companyPackages;
+    console.log("arrr === >" + JSON.stringify(arr));
 
 
     useEffect(() => {
@@ -23,15 +25,25 @@ const Package = ({ navigation }) => {
     }, []);
 
     const onBuyNowClick = async (data) => {
-        Session.userPackage.userId = Session.userObj[0].userId
+        setLoading(true)
+        Session.userPackage.userId = Session.userObj.userId
         Session.userPackage.packageId = data.PackageId;
 
+
+        console.log("user package id " + JSON.stringify(Session.userObj));
+
+        console.log("user package id " + JSON.stringify(Session.userPackage));
+
+
         await Http.post(Constants.END_POINT_UPDATE_USER_PACKAGE, Session.userPackage).then((response) => {
+            setLoading(false)
             console.log(response.data);
             if (response.data.success) {
                 if (Session.userObj != null) {
+                    Session.userObj = response.data.data[0]
                     AsyncMemory.storeItem("userObj", Session.userObj)
                     navigation.replace("BottomTab")
+                    console.log("session user object after update === >" + JSON.stringify(Session.userObj));
                 } else {
                     console.log("user object is null");
 
@@ -43,6 +55,7 @@ const Package = ({ navigation }) => {
 
 
         }, (error) => {
+            setLoading(false)
             console.log(error);
         })
 
@@ -121,20 +134,24 @@ const Package = ({ navigation }) => {
         //      console.log(descArray)
         return desc.map(function (data, i) {
 
-            return (<View key={i}>
-                <View style={{
-                    flexDirection: 'row',
-                }}>
+            if (data != '') {
 
-                    <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-                    <Text style={{
-                        marginLeft: 10,
-                        fontSize: FontSize.FONT_SIZE_18
-                    }}>{data}</Text>
 
+                return (<View key={i}>
+                    <View style={{
+                        flexDirection: 'row',
+                    }}>
+
+                        <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
+                        <Text style={{
+                            marginLeft: 10,
+                            fontSize: FontSize.FONT_SIZE_18
+                        }}>{data}</Text>
+
+                    </View>
                 </View>
-            </View>
-            );
+                );
+            }
 
         })
     }
@@ -203,6 +220,8 @@ const Package = ({ navigation }) => {
         <View style={{
             flex: 1, backgroundColor: Colors.COLOR_WHITE
         }}>
+            <StatusBar backgroundColor="white"></StatusBar>
+            <Loader loading={loading}></Loader>
             <View style={{ alignSelf: 'center' }}>
                 <Text style={TextStyle.Styles.PACKAGE_STYLE}> Price Plans</Text>
             </View>

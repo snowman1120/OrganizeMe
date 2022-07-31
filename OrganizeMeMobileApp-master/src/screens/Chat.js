@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, Dimensions, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Dimensions, TextInput, TouchableOpacity, StyleSheet, Linking, Image, StatusBar } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import Icons from 'react-native-vector-icons/FontAwesome5'
 import Colors from '../theme/Colors'
@@ -7,6 +7,7 @@ import FontSize from '../theme/FontSize'
 import * as ImagePicker from "react-native-image-picker";
 import ImgToBase64 from "react-native-image-base64";
 import TextStyle from '../theme/TextStyle'
+import Loader from '../utils/loader'
 import {
     GiftedChat,
     InputToolbar,
@@ -25,15 +26,22 @@ import DocumentPicker from "react-native-document-picker"
 import RNFetchBlob from "react-native-fetch-blob";
 import Constants from '../http/Constants'
 import Http from '../http/Http'
+import Modal from 'react-native-modal'
+import AsyncMemory from '../utils/AsyncMemory'
+
 //const socket = useRef(io(SERVER));
 
 
 
-const Chat = () => {
+const Chat = ({ navigation }) => {
+
+    let docObject = []
 
     // console.log("user object === >" + JSON.stringify(Session.userObj));
     // console.log("Doctor user object === >" + JSON.stringify(Session.docUserObj));
     console.log("==========================Chat Screen==============================");
+    // console.log("session doc object" + JSON.stringify(Session.docObj));
+    // console.log("session user object" + JSON.stringify(Session.userObj));
 
     const [messages, setMessages] = useState([]);
     const [exsists, setExsists] = useState(false)
@@ -41,6 +49,10 @@ const Chat = () => {
     const [loading, setLoading] = useState(false)
     const screenWidth = Math.round(Dimensions.get("window").width);
     const screenHight = Math.round(Dimensions.get("window").height);
+    const [visible, setVisible] = useState(false)
+    const [modalImg, setMoadlImg] = useState("")
+    const [id, setId] = useState("")
+
 
     const socket = io(SERVER);
     let m = []
@@ -53,7 +65,7 @@ const Chat = () => {
 
     console.log("==================================================================");
     const useRedux = (message) => {
-
+        console.log("Redux" + JSON.stringify(message));
         dispatch(addMsg(message))
         //getReduxChat()
 
@@ -65,7 +77,7 @@ const Chat = () => {
         console.log("===========================================");
         console.log("Restoring messages");
 
-        // console.log("restore messages length == > " + value.length);
+        console.log("restore messages length == > " + value.length);
         console.log("===========================================");
 
         for (let x = value?.length - 1; x >= 0; x--) {
@@ -92,7 +104,29 @@ const Chat = () => {
                 ]);
 
 
-            } else {
+            }
+
+
+            else if (msg?.type == "pdf") {
+                console.log("Inside Else if === > Type == > pdf ");
+                console.log("msg === >" + JSON.stringify(msg));
+                setMessages(messages => [...messages,
+                {
+                    _id: uuid.v4(),
+                    text: <TouchableOpacity onPress={() => Linking.openURL(msg.url)}><Text>{msg.text}</Text></TouchableOpacity>,
+                    createdAt: new Date(),
+                    url: msg?.url,
+                    user: {
+                        _id: msg?.user._id,
+                        name: msg?.user.name,
+                        avatar: msg?.user.avatar,
+                    },
+                }
+                    ,
+                ]);
+            }
+
+            else {
                 console.log("Inside Else === > Type == > text ");
                 setMessages(messages => [...messages,
                 {
@@ -114,12 +148,33 @@ const Chat = () => {
         //  console.log("=================================================");
     }
 
-    const getReduxChat = () => {
-        // console.log("Chats === >" + JSON.stringify(value));
+    const getDocObject = async () => {
+
+
+        docObject = await AsyncMemory.retrieveItem('docObj')
+        console.log("=====================================================================");
+        console.log(" const Session doctor object array === >" + JSON.stringify(docObject.userId));
+        setId(docObject.userId)
+        console.log("=====================================================================");
+
     }
     // console.log(socket);
+
     useEffect(() => {
+
+        if(loading){
+            console.log("loader true")
+            return;
+        }else{
+            console.log("loader false")
+           // return;
+        }
+        getDocObject()
         // console.log("value  length == >" + value.length);
+
+        // if (value.length != 0) {
+        //     restoreMessage()
+        // }
         console.log("Before useeffect socket.on");
         socket.on('connect', () => {
             console.log("I'm connected with the back-end");
@@ -130,6 +185,8 @@ const Chat = () => {
             console.log("value  length  of redux store== >" + value.length);
 
 
+            console.log("Doc Objec " + docObject.userId);
+
             if (value.length == 0) {
                 console.log("Inside iffff");
                 m = [
@@ -138,9 +195,9 @@ const Chat = () => {
                         text: msg,
                         createdAt: new Date(),
                         user: {
-                            _id: 2,
-                            name: "Dr. David Adams",
-                            avatar: "http://194.233.69.219/general/doctor.jpg",
+                            _id: docObject.userId,
+                            name: docObject.userName,
+                            avatar: docObject.imgUrl,
                         },
                         // image:'http://194.233.69.219/general/doctor.jpg'
                     },
@@ -167,12 +224,11 @@ const Chat = () => {
                 {
                     _id: uuid.v4(),
                     text: msg,
-
                     createdAt: new Date(),
                     user: {
-                        _id: 2,
-                        name: 'React Native',
-                        avatar: 'http://194.233.69.219/general/doctor.jpg',
+                        _id:docObject.userId,
+                        name: docObject.userName,
+                        avatar: docObject.imgUrl,
                     },
                 },
             ])
@@ -202,9 +258,10 @@ const Chat = () => {
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
         useRedux(messages)
 
+
     })
     const onSend = useCallback((messages = []) => {
-        console.log("Messages == >" + JSON.stringify(messages));
+        // console.log("Messages == >" + JSON.stringify(messages));
         socket.emit('doctorMessage', messages);
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
         // console.log("send msg = >" + JSON.stringify(messages));
@@ -239,49 +296,51 @@ const Chat = () => {
         //     quality: 0.25,
         //     includeBase64: true,
         // };
+       // setLoading(true)
 
         // ImagePicker.launchImageLibrary(options, getImg);
         ImagePicker.launchImageLibrary({
-            mediaType: 'any',
-            multiple: true,
-            width: 300,
-            height: 400,
-            cropping: true
+            mediaType: 'photo',
+            multiple: false,
+            // width: 300,
+            // height: 400,
+            cropping: false
         }).then(image => {
             onImageUpload(image);
+
         })
     };
 
     const onImageUpload = async (image) => {
-
         console.log("Image Uploaded");
-        console.log(" onUpload Image ===== > " + JSON.stringify(image.assets[0].uri));
+        // console.log(" onUpload Image ===== > " + JSON.stringify(image.assets[0].uri));
         Session.cleanImgs()
         console.log(image.length);
         if (image.length == undefined) {
-            setLoading(true)
+            // setLoading(true)
             console.log("iffffff")
             console.log("ImageUri === >" + JSON.stringify(image.assets[0].uri));
             await uploadImages(image.assets[0].uri)
 
         }
         else {
-            setLoading(true)
+            // setLoading(true)
 
-            var imageObj = [];
+            // var imageObj = [];
 
-            for (let i = 0; i < image.length; i++) {
+            // for (let i = 0; i < image.length; i++) {
 
-                await uploadImages(image.assets[0].uri)
+            //     await uploadImages(image.assets[0].uri)
 
-            }
+            // }
         }
-        setLoading(false)
+        // setLoading(false)
     }
     const uploadImages = async (imageObj) => {
+        setLoading(true)
 
         console.log("================================== imgs object===================================");
-        console.log("Image Obj === >" + JSON.stringify(imageObj));
+        // console.log("Image Obj === >" + JSON.stringify(imageObj));
         var formdata = new FormData();
         formdata.append("file", {
             name: imageObj,
@@ -293,6 +352,7 @@ const Chat = () => {
         console.log("Form Data == >" + JSON.stringify(formdata));
         await Http.PostImage(Constants.END_POINT_POST_IMAGE, formdata).then(response => response.json())
             .then((json) => {
+                setLoading(false)
                 console.log(json);
                 console.log("==================================Image Url =====================================");
                 console.log(json.data.imageUrl);
@@ -322,12 +382,16 @@ const Chat = () => {
                 }
 
             })
-            .catch(error => { console.log('request failed', error); });
+            .catch(error => {
+                setLoading(false)
+                console.log('request failed', error);
+            });
     }
 
 
     const uploadTask = async (fileName, data, type) => {
-
+        setLoading(true)
+        console.log("===========================Upload Task=================================");
         console.log("fileName = " + fileName + " , data= base64 , type = " + type + "data === >" + data);
         // setProgressUpload(0);
         // setProgressShow(true);
@@ -339,7 +403,7 @@ const Chat = () => {
         } else {
             bodyFormData.append("file", {
                 name: fileName,
-                type: "image/jpeg",
+                type: "application/pdf",
                 uri: data,
             });
 
@@ -366,15 +430,15 @@ const Chat = () => {
         // };
 
         console.log(" Form Data Document ==== >" + JSON.stringify(bodyFormData));
-    
+
 
         await Http.PostImage(Constants.END_POINT_POST_IMAGE, bodyFormData).then(response => response.json())
             .then((json) => {
+                setLoading(false)
                 console.log(json);
                 // console.log("==================================Image Url =====================================");
                 // console.log(json.data.imageUrl);
 
-                return
                 if (json.success == true) {
 
                     onSend(
@@ -382,25 +446,28 @@ const Chat = () => {
                         m = [
                             {
                                 _id: uuid.v4(),
-                                text: '',
+                                text: json.data.imageName,
                                 url: json.data.imageUrl,
                                 createdAt: new Date(),
-                                type: "img",
+                                type: "pdf",
                                 user: {
                                     _id: Session.userObj.userId,
                                     name: Session.userObj.userName,
                                     avatar: Session.userObj.imgUrl,
-                                },
-                                image: json.data.imageUrl,
+                                }
                             },
                         ]);
+
                     // setImages(json.data.imageUrl)
                     // useRedux(m)
 
                 }
 
             })
-            .catch(error => { console.log('request failed', error); });
+            .catch(error => {
+                setLoading(false)
+                console.log('request failed', error);
+            });
 
         // console.log("FormData " + JSON.stringify(bodyFormData));
 
@@ -513,6 +580,8 @@ const Chat = () => {
                     DocumentPicker.types.ppt,
                     DocumentPicker.types.pptx,
                 ],
+                copyTo: "cachesDirectory",
+
             });
 
             // uploadTask(res.name,  res.uri, "Document");
@@ -520,19 +589,35 @@ const Chat = () => {
 
             console.log("res ui == >" + res[0].uri);
             if (Platform.OS == "ios") {
-                uploadTask(res.name, res.uri, "Document");
+                uploadTask(res.name, res.fileCopyUri, "Document");
             } else {
                 console.log("In Else == > Android Platform");
                 let m = res[0]
                 console.log("M == >" + JSON.stringify(m));
-                RNFetchBlob.fs
-                    .stat(m.uri)
-                    .then(() => {
+                // RNFetchBlob
+                //     .fs
+                //     .stat(m.uri)
+                //     .then((stats) => {
+                //         console.log("Stats path === >" + stats.path);
+                //         uploadTask(m.name, "file://" + m.uri, "Document");
+                //     })
+                //     .catch((err) => {
+                //         console.log("Error ==== > " + err);
+                //     })
 
-                        uploadTask(m.name, "file://" + m.uri, "Document");
+                uploadTask(res[0].name, res[0].fileCopyUri, "Document");
+
+                return
+
+                RNFetchBlob.fs
+                    .stat(res[0].uri)
+                    .then((stats) => {
+                        console.log(stats.path);
+
+                        uploadTask(res[0].name, "file://" + stats.path, "Document");
                     })
                     .catch((err) => {
-                        console.log("Error ==== > " + err);
+                        console.log(err);
                     });
             }
         } catch (err) {
@@ -544,53 +629,251 @@ const Chat = () => {
         }
     };
 
+    const renderBubble = (props) => {
+
+       // setLoading(true)
+      //  console.log("Custom  Bubble  View");
+
+        const { currentMessage } = props;
+       console.log("current Msg == >" + JSON.stringify(currentMessage));
+        // console.log("Props == >" + JSON.stringify(props));
+        // return
+
+       // console.log("set Id ===> === >" + id);
+
+        let imgChar = "jpg"
+        let pdfChar = "pdf"
+
+        console.log("id === >" +currentMessage.user._id );
+        if (currentMessage.user._id == id) {
+
+            if (currentMessage.url?.includes(pdfChar)) {
+
+                //setLoading(false)
+               // console.log("Insidde if pdf");
+                return (
+                    <View style={{ maxHeight: 80, maxWidth: "30%", marginVertical: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
+                        <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
+                            <View>
+                                <Icons name='file-pdf' size={50} />
+
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                )
+
+            }
+            else if (currentMessage.image?.includes(imgChar)) {
+               // console.log("Insidde ELse if Img");
+              //  setLoading(false)
+                return (
+                    <View style={{ height: 200, width: 150, justifyContent: 'center', alignItems: 'center', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
+                        <TouchableOpacity onPress={() => onImagePress(currentMessage.image)} style={{ height: 190, width: 150, justifyContent: 'center', alignItems: 'center' }} >
+                            <Image source={{ uri: currentMessage.url }} style={{ height: "90%", width: "90%" }} resizeMode="contain" />
+                        </TouchableOpacity>
+                    </View>
+                )
+            }
+            else {
+               // console.log("Insidde ELse Text");
+              //  setLoading(false)
+                return (
+                    <View style={{ maxWidth: "80%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
+                        <Text style={{ fontSize: 16, margin: 10, color: 'black' }}>{currentMessage.text}</Text>
+                    </View>
+                )
+            }
+        }
+        else {
+
+            if (currentMessage.url?.includes(pdfChar)) {
+
+             //   console.log("Insidde if pdf");
+             //   setLoading(false)
+                return (
+                    <View style={{ maxHeight: 80, marginVertical: 10, maxWidth: "30%", justifyContent: 'center', alignItems: 'center', marginHorizontal: 10, backgroundColor: "white", borderRadius: 10 }}>
+                        <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
+                            <Icons name='file-pdf' size={70} color="#435ebe" style={{ marginHorizontal: 5, alignSelf: 'flex-end' }} />
+                            <Text style={{ fontSize: 12, fontWeight: 'bold' }}>{currentMessage.text}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )
+
+            }
+            else if (currentMessage.image?.includes(imgChar)) {
+               // setLoading(false)
+             //   console.log("Insidde ELse if Img");
+                return (
+                    <View style={{ height: 200, width: 150, justifyContent: 'center', alignItems: 'center', backgroundColor: "#435ebe", borderRadius: 10 }}>
+                        <TouchableOpacity onPress={() => onImagePress(currentMessage.image)} style={{ height: 190, width: 150, justifyContent: 'center', alignItems: 'center' }} >
+                            <Image source={{ uri: currentMessage.image }} style={{ height: "90%", width: "90%" }} resizeMode="contain" />
+                        </TouchableOpacity>
+                    </View>
+                )
+            }
+            else {
+              //  console.log("Insidde ELse Text");
+               // setLoading(false)
+                return (
+                    <View style={{ maxWidth: "80%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: "#435ebe", borderRadius: 10 }}>
+                        <Text style={{ fontSize: 16, margin: 10, color: 'white' }}>{currentMessage.text}</Text>
+                    </View>
+                )
+            }
+
+        }
+
+
+
+        // return <Bubble {...props} />;
+    };
+
+    const onImagePress = (url) => {
+        console.log("on iMAGE pRESS");
+        console.log(url);
+
+        setMoadlImg(url)
+        setVisible(true)
+    }
+
+    // const renderMessageText = (props) => {
+
+    //     console.log("Custom  Message");
+
+    //     const { currentMessage } = props;
+    //     console.log("current Msg == >" + JSON.stringify(currentMessage));
+    //     // console.log("Props == >" + JSON.stringify(props));
+    //     // return
+    //     if (currentMessage.type == "pdf") {
+
+
+    //         return (
+    //             <View style={{ height: 40, width: "90%", justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.COLOR_THEME, borderRadius: 10 }}>
+    //                 <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
+    //                     <Text style={{ fontSize: 16, margin: 10 }}>{currentMessage.url}</Text>
+    //                 </TouchableOpacity>
+    //             </View>
+    //         )
+
+    //     }
+    //     else if (currentMessage.type == "img") {
+    //         return (
+    //             <View style={{ height: 200, width: 150 , backgroundColor : 'red' }}>
+    //                 <TouchableOpacity  onPress={() => onImagePress(currentMessage.url)} style = {{ height : 150 , width : 150 , justifyContent: 'center' , alignItems : 'center' }} >
+    //                     <Image source={{ uri: currentMessage.url }} style={{ height : "90%" , width : "90%" }} resizeMode="contain"  />
+    //                 </TouchableOpacity>
+    //             </View>
+    //         )
+    //     }
+    //     else {
+    //         console.log("Insidde ELse");
+    //         return (
+    //             <View style={{ maxWidth: "90%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: Colors.COLOR_THEME, borderRadius: 10 }}>
+    //                 <Text style={{ fontSize: 16, margin: 10 }}>{currentMessage.text}</Text>
+    //             </View>
+    //         )
+    //     }
+
+    //     // return <Bubble {...props} />;
+    // };
+
+    const renderTime = props => {
+        console.log("render time")
+        return (
+            <Time
+                {...props}
+                timeTextStyle={{
+                    left: {
+                        color: '#3c3c434d',
+                        fontSize: 10,
+                        fontFamily: 'Rubik',
+                        textAlign: 'right', // or position: 'right'
+                    },
+                    right: { color: '#3c3c434d', fontSize: 10, fontFamily: 'Rubik' },
+                }}
+            />
+        );
+    };
 
 
     return (
-        <GiftedChat
-            messages={messages}
-            onSend={messages => onSend(messages)}
-            user={{
-                _id: Session.userObj.userId,
-                name: Session.userObj.userName,
-                avatar: Session.userObj.imgUrl,
-            }}
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
+            <Loader loading={loading}></Loader>
+            <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                        <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: 10 }} >
+                        <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+                            <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 40, width: 40, borderRadius: 30 }} />
+                            <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+                                <Text style={{ color: 'black', fontSize: 14 }}>Welcome</Text>
+                                <Text style={{ color: 'black', fontSize: 12, fontWeight: 'bold' }}>{Session.userObj.userName}</Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <GiftedChat
+                renderBubble={renderBubble}
+                messages={messages}
+                onSend={messages => onSend(messages)}
+                renderTime={renderTime}
+                user={{
+                    _id: Session.userObj.userId,
+                    name: Session.userObj.userName,
+                    avatar: Session.userObj.imgUrl,
+                }}
 
-            // renderSend={(props) => {
-            //     const { text, messageIdGenerator, user, onSend } = props;
-            //     return (
-            //         <TouchableOpacity
-            //             // onPressIn={onPressIn}
-            //             // onPressOut={onPressOut}
-            //             // onLongPress={onPressIn}
-            //             onPress={() => {
-            //                 if (text && onSend) {
-            //                     // onSend(
-            //                     //     {
-            //                     //         text: text.trim(),
-            //                     //         user: user,
-            //                     //         _id: messageIdGenerator(),
-            //                     //     },
-            //                     //     true
-            //                     // );
-            //                     onSend(text);
-            //                 }
-            //             }}
-            //             style={styleSheet.sendBtnStyle}
-            //         >
-            //             <Send />
-            //             <Icons
-            //                 color={"black"}
-            //                 style={{ alignSelf: "center" }}
-            //                 size={20}
-            //                 name={"paper-plane" /*isTyping == true ? "send" : "mic"*/}
-            //             ></Icons>
-            //         </TouchableOpacity>
-            //     );
-            // }}
-            renderActions={renderActions}
-        // scrollToBottomComponent={true}
-        />
+
+                // renderSend={(props) => {
+                //     const { text, messageIdGenerator, user, onSend } = props;
+                //     return (
+                //         <TouchableOpacity
+                //             // onPressIn={onPressIn}
+                //             // onPressOut={onPressOut}
+                //             // onLongPress={onPressIn}
+                //             onPress={() => {
+                //                 if (text && onSend) {
+                //                     // onSend(
+                //                     //     {
+                //                     //         text: text.trim(),
+                //                     //         user: user,
+                //                     //         _id: messageIdGenerator(),
+                //                     //     },
+                //                     //     true
+                //                     // );
+                //                     onSend(text);
+                //                 }
+                //             }}
+                //             style={styleSheet.sendBtnStyle}
+                //         >
+                //             <Send />
+                //             <Icons
+                //                 color={"black"}
+                //                 style={{ alignSelf: "center" }}
+                //                 size={20}
+                //                 name={"paper-plane" /*isTyping == true ? "send" : "mic"*/}
+                //             ></Icons>
+                //         </TouchableOpacity>
+                //     );
+                // }}
+                renderActions={renderActions}
+
+            // scrollToBottomComponent={true}
+            />
+
+            <Modal isVisible={visible}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Image style={{ height: 400, width: 400 }} resizeMode="contain" source={{ uri: modalImg }} />
+                    <Icon name='close' size={30} onPress={() => setVisible(false)} style={{ position: 'absolute', top: 20, right: 20 }} />
+                </View>
+            </Modal>
+
+
+        </View>
 
     )
 }

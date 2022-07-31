@@ -1,9 +1,11 @@
 import React, { useState, useRef } from "react";
-import { View, Text, Dimensions, TouchableOpacity, Image, ScrollView } from 'react-native'
+import { View, Text, Dimensions, TouchableOpacity, Image, ScrollView, BackHandler } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import Icons from 'react-native-vector-icons/MaterialIcons'
 import Colors from "../theme/Colors";
 import Session from "../utils/Session";
-import * as ImagePicker from "react-native-image-picker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import Alerts from '../utils/Alerts'
 import TextStyle from "../theme/TextStyle";
 import {
     TextField,
@@ -16,6 +18,8 @@ import Constants from "../http/Constants";
 const Screenheight = Dimensions.get('window').height
 const ScreenWidth = Dimensions.get('window').width
 import Loader from '../utils/loader'
+import Modal from 'react-native-modal'
+import AsyncMemory from "../utils/AsyncMemory";
 
 
 const Profile = ({ navigation }) => {
@@ -28,6 +32,9 @@ const Profile = ({ navigation }) => {
     const phoneRef = useRef()
     const passRef = useRef()
 
+    const [buttonTxt, setButtonTxt] = useState("Ok")
+    const [openAlert, setOpenAlert] = useState(false)
+    const [msg, setMsg] = useState("")
     const [id, setId] = useState(Session.userObj.userId)
     const [name, setName] = useState(Session.userObj.userName)
     const [phone, setPhone] = useState(Session.userObj.phone)
@@ -36,7 +43,7 @@ const Profile = ({ navigation }) => {
     const [country, setCountry] = useState(Session.userObj.country)
     const [image, setImage] = useState(Session.userObj.imgUrl)
     const [loading, setLoading] = useState(false);
-
+    const [visible, setVisible] = useState(false)
     const [images, setImages] = useState([])
 
 
@@ -46,10 +53,13 @@ const Profile = ({ navigation }) => {
     const onSubmit = async () => {
 
         if (name == "" || email == "" || phone == "" || pass == "" || image == "") {
-            alert("please insert data in all field")
+            // alert("please insert data in all field")
+            setOpenAlert(true)
+
         }
         else {
 
+            console.log(image);
 
             Session.updateProfile.userId = id
             Session.updateProfile.userName = name
@@ -57,7 +67,7 @@ const Profile = ({ navigation }) => {
             Session.updateProfile.phone = phone
             Session.updateProfile.password = pass
             Session.updateProfile.country = Session.userObj.country
-            Session.updateProfile.imageUrl = Image
+            Session.updateProfile.imageUrl = image
 
 
             console.log("Update Profile Object" + JSON.stringify(Session.updateProfile));
@@ -69,6 +79,7 @@ const Profile = ({ navigation }) => {
                 if (response.data.success) {
                     console.log("json === >" + JSON.stringify(response.data.data.user[0]));
                     Session.userObj = response.data.data.user[0]
+                    AsyncMemory.storeItem("userObj", Session.userObj)
                     alert("Update Succesfull")
                 }
                 else {
@@ -87,22 +98,23 @@ const Profile = ({ navigation }) => {
 
     };
 
-    const onImgUpload = (text) => {
-        // return text.replace(/[^+\d]/g, '');
-        ImagePicker.launchImageLibrary({
-            mediaType: 'any',
-            width: 300,
-            height: 400,
-            cropping: true
-        }).then(image => {
-            onImageUpload(image);
-        })
-    };
+    // const onImgUpload = (text) => {
+    //     // return text.replace(/[^+\d]/g, '');
+    //     ImagePicker.launchImageLibrary({
+    //         mediaType: 'any',
+    //         width: 300,
+    //         height: 400,
+    //         cropping: true
+    //     }).then(image => {
+    //         onImageUpload(image);
+    //     })
+    // };
 
     const onImageUpload = async (image) => {
-        setLoading(true)
+        setVisible(false)
+        // setLoading(true)
         // console.log("Image Uploaded");
-        console.log(" onUpload Image ===== > " + JSON.stringify(image.assets[0].uri));
+        // console.log(" onUpload Image ===== > " + JSON.stringify(image.assets[0].uri));
         // Session.cleanImgs()
         console.log(image.length);
         if (image.length == undefined) {
@@ -112,7 +124,7 @@ const Profile = ({ navigation }) => {
             await uploadImages(image.assets[0].uri)
         }
 
-        
+
     }
 
     const checkImg = () => {
@@ -120,7 +132,7 @@ const Profile = ({ navigation }) => {
         console.log("Image sTATE -===== >" + images);
     }
     const uploadImages = async (imageObj) => {
-        
+        setLoading(true)
         console.log("================================== imgs object===================================");
         console.log("Image Obj === >" + JSON.stringify(imageObj));
         var formdata = new FormData();
@@ -140,9 +152,12 @@ const Profile = ({ navigation }) => {
                 if (json.success == true) {
                     console.log("==================================Image Url =====================================");
                     console.log("Dp Uploadedd" + json.data.imageUrl);
-                    setImage(json.data.imageUrl)
+                    setOpenAlert(true)
+                    setMsg(json.message)
                     Session.userObj.imgUrl = json.data.imageUrl
-
+                    setImage(json.data.imageUrl)
+                    AsyncMemory.storeItem("userObj", Session.userObj)
+                    // onSubmit()
                 }
             })
             .catch(error => {
@@ -154,23 +169,26 @@ const Profile = ({ navigation }) => {
     }
 
     // const [loading, setLoading] = useState(false)
+    const onBackHandler = () => {
+        navigation.goBack()
+    }
 
     return (
         <View style={{ height: "100%" }}>
             <Loader loading={loading}></Loader>
             <View style={{ height: 200, width: "100%", backgroundColor: Colors.COLOR_THEME, borderBottomLeftRadius: 100, borderBottomRightRadius: 100, position: "absolute" }}>
                 <View style={{ flexDirection: "row", marginTop: 20, marginLeft: 10 }}>
-                    <TouchableOpacity onPress={() => navigation.replace('Setting')}>
-                        <Icon name="arrow-left" size={20} />
+                    <TouchableOpacity style = {{ flexDirection : "row" }} onPress={() => onBackHandler()}>
+                        <Icon name="arrow-left" size={20} color="white" />
+                        <Text style={{ fontSize: 16, fontWeight: "bold", color: 'white', marginLeft: 20 }}>User Profile</Text>
                     </TouchableOpacity>
-                    <Text style={{ fontSize: 16, fontWeight: "bold", color: 'black', marginLeft: 20 }}>User Profile</Text>
                 </View>
             </View>
             <View style={{ height: 600, width: "80%", backgroundColor: 'white', elevation: 10, position: "absolute", top: 130, alignSelf: "center", borderRadius: 30 }}>
                 <View style={{ height: "20%", borderRadius: 30, justifyContent: "flex-end", alignItems: "center" }}>
                     <View style={{ height: 80, width: 80, backgroundColor: 'white', borderRadius: 50, position: "absolute", alignSelf: "center", top: -30, elevation: 10 }}>
-                        <Image source={{ uri: Session.userObj.imgUrl }} resizeMode='contain' style={{ height: 80, width: 80, borderRadius: 50 }} />
-                        <TouchableOpacity onPress={() => onImgUpload()} style={{ position: "absolute", bottom: -15, alignSelf: "center" }} >
+                        <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 80, width: 80, borderRadius: 30 }} />
+                        <TouchableOpacity onPress={() => setVisible(true)} style={{ position: "absolute", bottom: -15, alignSelf: "center" }} >
                             <Icon name="camera" size={20} />
                         </TouchableOpacity>
                     </View>
@@ -268,11 +286,88 @@ const Profile = ({ navigation }) => {
                             alignSelf: 'center',
                             marginTop: 20
                         }}>
-                        <Text style={{ color: Colors.COLOR_BLACK, fontWeight: 'bold' }}>Update</Text>
+                        <Text style={{ color: "white", fontWeight: 'bold' }}>Update</Text>
                     </TouchableOpacity>
                 </View>
             </View>
 
+            <Modal isVisible={visible} style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: "100%", backgroundColor: 'white', height: 150, justifyContent: "center", alignItems: "center", borderRadius: 20, elevation: 10 }}>
+                        <TouchableOpacity style={{ height: 40, width: 40, position: 'absolute', right: 10, top: 10 }} onPress={() => setVisible(false)}>
+                            <Icons name='close' size={20} color="black" />
+                        </TouchableOpacity>
+                        <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-evenly", elevation: 10 }}>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    launchImageLibrary({
+                                        mediaType: 'any',
+                                        multiple: true,
+                                        width: 300,
+                                        height: 400,
+                                        cropping: true
+                                    }).then(image => {
+                                        onImageUpload(image);
+                                    })
+                                }
+                                style={{
+                                    marginTop: 10,
+                                    alignSelf: "center",
+                                    backgroundColor: 'white',
+                                    height: 60,
+                                    borderBottomLeftRadius: 20,
+                                    borderTopRightRadius: 20,
+                                    paddingVertical: 10,
+                                    width: 150,
+                                    elevation: 10
+                                }}>
+                                <View>
+                                    <Icon name="file-image" size={20} style={{ alignSelf: "center" }} color="black" />
+                                    <Text style={{ textAlign: "center" }}>Open Gallery</Text>
+                                </View>
+
+                            </TouchableOpacity>
+
+
+                            <TouchableOpacity
+                                onPress={() =>
+                                    launchCamera({
+                                        width: 300,
+                                        height: 400,
+                                        cropping: false,
+                                    }).then(image => {
+                                        // console.log("camera lauch" + JSON.stringify(image));
+                                        onImageUpload(image)
+                                    })}
+                                style={{
+                                    marginTop: 10,
+                                    alignSelf: "center",
+                                    backgroundColor: 'white',
+                                    height: 60,
+                                    borderBottomLeftRadius: 20,
+                                    borderTopRightRadius: 20,
+                                    paddingVertical: 10,
+                                    width: 150,
+                                    elevation: 10
+                                }}>
+                                <View>
+                                    <Icon name="camera" size={20} style={{ alignSelf: "center" }} color="black" />
+                                    <Text style={{ textAlign: "center" }}>Open Camera</Text>
+                                </View>
+
+                            </TouchableOpacity>
+
+
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Alerts
+                showAlert={openAlert}
+                buttonTxt={buttonTxt}
+                msg={msg}
+                onConfirmPressed={() => setOpenAlert(false)}></Alerts>
         </View >
 
     )
