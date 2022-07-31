@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import Icons from 'react-native-vector-icons/MaterialIcons'
 import Chat from '../screens/Chat'
 import CheckList from '../screens/CheckList'
 import Settings from '../screens/Settings'
@@ -10,6 +11,7 @@ import Icon2 from 'react-native-vector-icons/Ionicons'
 import AppImages from '../theme/AppImages';
 import Profile from '../screens/Profile';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import WebViews from '../screens/WebViews';
 
 
 
@@ -23,6 +25,28 @@ const SettingStack = () => {
         <stack.Navigator screenOptions={{ headerShown: false }}>
             <stack.Screen name="Setting" component={Settings} />
             <stack.Screen name="Profile" component={Profile} />
+            <stack.Screen name="WebViews" component={WebViews} />
+
+        </stack.Navigator>
+    );
+};
+
+const ChatStack = () => {
+    const stack = createNativeStackNavigator();
+    return (
+        <stack.Navigator screenOptions={{ headerShown: false }}>
+            <stack.Screen name="Chat" component={Chat} />
+            <stack.Screen name="Profile" component={Profile} />
+        </stack.Navigator>
+    );
+};
+
+const CheckStack = () => {
+    const stack = createNativeStackNavigator();
+    return (
+        <stack.Navigator screenOptions={{ headerShown: false }}>
+            <stack.Screen name="CheckList" component={CheckList} />
+            <stack.Screen name="Profile" component={Profile} />
         </stack.Navigator>
     );
 };
@@ -32,14 +56,12 @@ const BottomTab = () => {
     return (
         <Tab.Navigator
             screenOptions={{
-                unmountOnBlur: true,
                 headerShown: false,
                 unmountOnBlur: true,
                 tabBarActiveTintColor: Colors.COLOR_THEME,
                 tabBarStyle: {
                     height: 60,
-                    borderTopLeftRadius: 30,
-                    borderTopRightRadius: 30,
+                    elevation: 10,
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
@@ -54,7 +76,7 @@ const BottomTab = () => {
 
             <Tab.Screen
                 name="CheckList"
-                component={CheckList}
+                component={CheckStack}
                 options={{
                     tabBarLabelStyle: {
                         color: 'black',
@@ -92,7 +114,7 @@ const BottomTab = () => {
 
             <Tab.Screen
                 name="Chat"
-                component={Chat}
+                component={ChatStack}
                 options={{
                     tabBarLabelStyle: {
                         color: 'black',
@@ -126,6 +148,13 @@ const BottomTab = () => {
                                     // tintColor: focused ? Colors.COLOR_THEME : "#000000",
                                 }}
                             />
+                            {/* <Icons
+                                name='messenger'
+                                size={20}
+                                style={{
+                                    // tintColor: focused ? Colors.THEME_WHITE : "#000000",
+                                }}
+                            /> */}
                         </View>
                     ),
                 }}

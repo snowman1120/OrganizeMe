@@ -57,7 +57,7 @@ const Login = ({ navigation }) => {
                 Session.docObj = response.data.data.doctor[0]
                 AsyncMemory.storeItem("userObj", Session.userObj)
                 AsyncMemory.storeItem("docObj", Session.docObj)
-                if (response.data.data.user[0].userPackageId != "") {
+                if (response.data?.data?.user[0]?.userPackageId != "") {
                     navigation.replace("BottomTab")
                 }
                 else {
@@ -66,6 +66,7 @@ const Login = ({ navigation }) => {
                 // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
             }
             else {
+                setLoading(false)
                 setSuccess(false)
                 setButtonTxt("Cancel")
                 setMsg(response.data.message)
@@ -84,20 +85,36 @@ const Login = ({ navigation }) => {
     }
 
 
-    const onSocialLoginClick = async (idToken) => {
-        // console.log("google Id TOKEN === >" + idToken);
+    const onSocialLoginClick = async (idToken, Id) => {
+        console.log(" Id TOKEN === >" + JSON.stringify(idToken) + " < ======= id ====== >" + Id);
         setLoading(true)
-        Session.socialSignInObj.authToken = idToken;
-        Session.socialSignInObj.authId = "2" // for google
+
+        Session.socialSignInObj.faceBookUserId = idToken.userID;
+        if (Id == 2) {
+            Session.socialSignInObj.authId = "2" // for google    
+            Session.socialSignInObj.authToken = idToken
+        }
+        else {
+            Session.socialSignInObj.authId = "3" // for facebook          
+            Session.socialSignInObj.authToken = idToken.accessToken;
+        }
+
+        console.log("session social signin object ==== >" + JSON.stringify(Session.socialSignInObj));
+
         await Http.post(Constants.END_POINT_SIGNIN_SOCIAL, Session.socialSignInObj).then((response) => {
             setLoading(false)
             console.log(response.data);
             if (response.data.success) {
-                Session.userObj = response.data.data
-                console.log("response User Object ==== >" + JSON.stringify(Session.userObj));
-                navigation.replace("Package")
-
-                // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
+                Session.userObj = response.data.data.user[0]
+                Session.docObj = response.data.data.doctor[0]
+                AsyncMemory.storeItem("userObj", Session.userObj)
+                AsyncMemory.storeItem("docObj", Session.docObj)
+                if (response.data?.data?.user[0]?.userPackageId != "") {
+                    navigation.replace("BottomTab")
+                }
+                else {
+                    navigation.replace("Package")
+                }
             }
             else {
                 setSuccess(false)
@@ -138,7 +155,9 @@ const Login = ({ navigation }) => {
         // Attempt login with permissions
         // setLoading(true)
         console.log("Login Attempt");
+        console.log("==============Login Manager before ========================");
         const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+        console.log("==============Login Manager after ========================");
 
         if (result.isCancelled) {
             throw 'User cancelled the login process';
@@ -146,7 +165,9 @@ const Login = ({ navigation }) => {
 
         // Once signed in, get the users AccesToken
         console.log("Before Auth Token ");
+        console.log("Befforee data======================================");
         const data = await AccessToken.getCurrentAccessToken();
+        console.log("after data======================================");
 
         console.log("Before Data");
         if (!data) {
@@ -159,7 +180,10 @@ const Login = ({ navigation }) => {
         const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
 
         // Sign-in the user with the credential
+        onSocialLoginClick(data, 3)
         return auth().signInWithCredential(facebookCredential);
+
+
 
     }
 
@@ -172,7 +196,7 @@ const Login = ({ navigation }) => {
             const { accessToken, idToken } = await GoogleSignin.signIn();
             console.log("access token === >" + accessToken);
             console.log("id token ==== >" + idToken);
-            onSocialLoginClick(idToken)
+            onSocialLoginClick(idToken, 2)
             setloggedIn(true);
             setloggedIn(false)
             setLoading(false)
@@ -228,7 +252,7 @@ const Login = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE }}>
-            <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
+            <StatusBar backgroundColor="white"></StatusBar>
             <Loader loading={loading}></Loader>
             <View style={{ flex: 0.4, justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ marginTop: 20 }}>
@@ -267,7 +291,7 @@ const Login = ({ navigation }) => {
                         alignSelf: 'center',
                         marginTop: 20
                     }}>
-                    <Text style={{ color: Colors.COLOR_BLACK, fontWeight: 'bold' }}>LOG IN</Text>
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>LOG IN</Text>
                 </TouchableOpacity>
 
 

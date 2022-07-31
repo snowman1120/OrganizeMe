@@ -14,9 +14,9 @@ class Session {
 
     static conversation = {
         senderId: "",
-        receiverId: "4",
+        receiverId: "",
         senderName: "",
-        receiverName: "Dr. David Adams",
+        receiverName: "",
         conversationName: ""
     }
     static updateProfile = {
@@ -47,12 +47,14 @@ class Session {
         countryPhoneCode: "",
         roleId: "2",
         authId: "1",
-        password: ""
+        password: "",
+        gender : "male"
     }
     static socialSignInObj = {
         authId: "2",
         roleId: "2",
-        authToken: ""
+        authToken: "",
+        faceBookUserId: ""
     }
     static userPackage = {
         userId: "",

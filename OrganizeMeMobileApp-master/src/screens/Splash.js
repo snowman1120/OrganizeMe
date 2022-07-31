@@ -14,6 +14,16 @@ import Package from './Package';
 import GifImage from '@lowkey/react-native-gif';
 import AsyncMemory from '../utils/AsyncMemory';
 import Firebase from '../firebase/Firebase';
+// import Video from 'react-native-video';
+// import VideoPlayer from 'react-native-video-player'
+import Video from 'react-native-video'
+import logoVedio from '../assets/logo.mp4'
+
+
+
+
+//Fb APP ID 
+//App ID:540937094082492
 
 export default class Splash extends Component {
 
@@ -43,8 +53,8 @@ export default class Splash extends Component {
 
             if (response.data.success) {
 
-                console.log("trueeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-                console.log("=============================Success==================================");
+                // console.log("trueeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+                // console.log("=============================Success==================================");
                 Session.companySettings = response.data.data.companySetting[0]
                 // console.log(Session.companySettings);
                 Session.appSettings = response.data.data.appSetting[0]
@@ -151,14 +161,22 @@ export default class Splash extends Component {
                 // console.log("async user object ==== >" + JSON.stringify(userObj));
                 console.log("inside if");
                 Session.userObj = userObj;
-                // console.log("session User Object " + JSON.stringify(Session.userObj));
+                console.log("session User Object " + JSON.stringify(Session.userObj));
 
-                setTimeout(() => {
-                    this.props.navigation.replace('BottomTab')
+                if (Session.userObj.userPackageId != "") {
+                    setTimeout(() => {
 
-                },
-                    3000
-                );
+                        this.props.navigation.replace('BottomTab')
+
+                    },
+                        3000
+                    );
+                }
+                else {
+                    this.props.navigation.replace('Package')
+
+                }
+
 
             }
             else {
@@ -186,17 +204,30 @@ export default class Splash extends Component {
     render() {
 
         return (
-            <View style={{ flex: 1, backgroundColor: "#ffffff", justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1,  justifyContent: 'center', backgroundColor : 'white', alignItems: 'center' }}>
                 {/* <Loader loading={this.state.loading}></Loader> */}
                 <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
                 {/* <Text style={{ fontSize: 26, fontWeight: 'bold', color: Colors.COLOR_BLACK }}>Organize Me</Text> */}
-                <GifImage
+                {/* <GifImage
                     source={require('../assets/splash.gif')}
                     style={{
                         height: 400,
                         width: 350
                     }}
-                    resizeMode="contain" />
+                    resizeMode="contain" /> */}
+                {/* <VideoPlayer
+                    video={{ uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
+                    videoWidth={1600}
+                    videoHeight={900}
+                    thumbnail={{ uri: 'https://i.picsum.photos/id/866/1600/900.jpg' }}
+                    onVideoEnd={() =>  console.log("vedio end")}
+                /> */}
+
+                <Video source={logoVedio}
+                    style={{ height: 200, width: 200 , backgroundColor : 'white' }}
+                    ref={(ref) => {
+                        this.player = ref
+                    }} />
                 {/* <Image source={require('../assets/splash.gif')} style={{
                         height: 400,
                         width: 350
