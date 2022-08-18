@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Switch , StatusBar } from 'react-native'
+import { View, Text, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Switch, StatusBar } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import Colors from '../theme/Colors'
 import FontSize from '../theme/FontSize'
@@ -10,19 +10,29 @@ import AppImages from '../theme/AppImages'
 import { SvgXml } from 'react-native-svg'
 import AsyncMemory from '../utils/AsyncMemory'
 import Session from '../utils/Session'
-
+import { useAppDispatch, useAppSelector } from '../redux/app/hooks'
+import { reset } from '../redux/slices/chat/chatSlice'
 
 const ScreenWidth = Dimensions.get('window').width
 
 
 const Settings = ({ navigation }) => {
+
+
+    const value = useAppSelector((State) => State.chat.value)
+    const dispatch = useAppDispatch()
+
+
     console.log("user object" + JSON.stringify(Session.userObj.userName));
     const onLogoutClick = () => {
+        dispatch(reset())
         console.log("Logout pressed");
+        Session.cleanConversationId()
         Session.cleanUserObj()
         console.log(JSON.stringify(Session.userObj));
         AsyncMemory.storeItem("userObj", null)
-        navigation.replace('Login')
+        // AsyncMemory.storeItem('isViewed', false)
+        navigation.replace('LoginV2')
     }
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }}>
@@ -43,9 +53,9 @@ const Settings = ({ navigation }) => {
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
-                    <TouchableOpacity>
+                    {/* <TouchableOpacity>
                         <Icon name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: 10 }} >
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                             <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 40, width: 40, borderRadius: 30 }} />

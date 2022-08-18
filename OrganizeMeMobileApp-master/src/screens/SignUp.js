@@ -11,7 +11,8 @@ import utils from '../utils/Utils'
 import Alerts from '../utils/Alerts'
 import Loader from '../utils/loader'
 import DropDownPicker from 'react-native-dropdown-picker';
-
+import Modal from 'react-native-modal'
+import RenderHtml from 'react-native-render-html';
 
 const SignUp = ({ navigation }) => {
 
@@ -35,7 +36,7 @@ const SignUp = ({ navigation }) => {
     const [buttonTxt, setButtonTxt] = useState("Ok")
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false);
-
+    const [visible, setVisible] = useState(false)
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState();
     const [items, setItems] = useState([
@@ -48,6 +49,7 @@ const SignUp = ({ navigation }) => {
     const phoneRef = useRef()
     const passRef = useRef()
     const rePassRef = useRef()
+    const width = Dimensions.get('window').width / 2
 
     useEffect(() => {
         setCText('')
@@ -65,6 +67,9 @@ const SignUp = ({ navigation }) => {
     }
 
     const onSignUpClick = async () => {
+       setVisible(true)
+
+        return
         setLoading(true)
         if (userName == "" || phone == "" || email == "" || countryCode == "" || country.name == "" || value == "") {
             setLoading(false)
@@ -263,6 +268,17 @@ const SignUp = ({ navigation }) => {
                 buttonTxt={buttonTxt}
                 msg={msg}
                 onConfirmPressed={() => confirmPress()}></Alerts>
+
+
+            <Modal isVisible={visible} style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <ScrollView style={{ maxWidth: "90%", alignSelf: 'center', backgroundColor: "white" }}>
+                    <RenderHtml
+                        contentWidth={width}
+                        style={{ alignSelf: "center" }}
+                        source={source}
+                    />
+                </ScrollView>
+            </Modal>
 
         </View>
     )

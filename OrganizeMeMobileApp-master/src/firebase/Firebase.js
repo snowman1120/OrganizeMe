@@ -9,8 +9,8 @@ const Firebase = async () => {
 
     Session.tokens.deviceToken = await messaging().getToken()
     Session.tokens.userId = Session.userObj.userId
-    console.log("user ID ==== >" +JSON.stringify(Session.userObj));
-    console.log("Device Token === >" + JSON.stringify(Session.tokens));
+    // console.log("user ID ==== >" +JSON.stringify(Session.userObj));
+    // console.log("Device Token === >" + JSON.stringify(Session.tokens));
 
     Http.post(Constants.END_POINT_UPDATE_DEVICE_TOKEM, Session.tokens).then((response) => {
         // setLoading(false)

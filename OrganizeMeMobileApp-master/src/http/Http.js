@@ -45,6 +45,17 @@ export default class Http extends Component {
         )
 
     }
+    static getOldChats = async (endpoint) => {
+        console.log("Axios get old chats");
+        return axios.get(Constants.END_POINT_ALL_CONVERSATION_URL + endpoint,
+            {
+                headers: {
+                    jwt: CompanyUtils.getCompanyId()
+                }
+            }
+        )
+
+    }
 
 
 

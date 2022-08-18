@@ -11,8 +11,8 @@ export default {
     END_POINT_POST_IMAGE: '/api/v1/PostImage',
     END_POINT_UPDATE_DEVICE_TOKEM: '/api/v1/UpdateDeviceToken',
     END_POINT_UPDATE_PROFILE: '/api/v1/UpdateProfile',
-    CONVERSATION_URL : 'http://194.233.69.219:3000/api/conversations',
-    
-    
+    CONVERSATION_URL: 'http://194.233.69.219:3000/api/conversations',
+    END_POINT_ALL_CONVERSATION_URL: 'http://194.233.69.219:3000/api/messages/',
+
 }
 

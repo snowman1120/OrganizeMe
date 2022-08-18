@@ -12,7 +12,8 @@ import Session from '../utils/Session'
 import AsyncMemory from '../utils/AsyncMemory'
 import Carousel from 'react-native-snap-carousel';
 import RBSheet from "react-native-raw-bottom-sheet";
-
+import Modal from 'react-native-modal'
+import Firebase from '../firebase/Firebase';
 
 const CheckList = ({ navigation }) => {
 
@@ -21,7 +22,6 @@ const CheckList = ({ navigation }) => {
 
 
     const Screenwidth = Dimensions.get('window').width
-    let docObject
 
     useEffect(() => {
         getCheckList()
@@ -31,10 +31,10 @@ const CheckList = ({ navigation }) => {
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState([])
     const [desc, setDesc] = useState()
+    const [visible, setVisible] = useState(false)
+    const [uri, setUri] = useState("")
 
     const getCheckList = async () => {
-        docObject = await AsyncMemory.retrieveItem('docObj')
-        console.log("Session doctor object === >" + JSON.stringify(docObject));
 
         setLoading(true)
         console.log("Get Check List ");
@@ -65,19 +65,32 @@ const CheckList = ({ navigation }) => {
 
         Session.conversation.senderId = Session.userObj.userId
         Session.conversation.senderName = Session.userObj.userName
-        Session.conversation.receiverId = docObject.userId
-        Session.conversation.receiverName = docObject.userName
+        Session.conversation.receiverId = Session.docObj.userId
+        Session.conversation.receiverName = Session.docObj.userName
         Session.conversation.conversationName = Session.userObj.userName
+        Session.conversation.senderImgUrl = Session.userObj.imgUrl
+        Session.conversation.receiverImgUrl = Session.docObj.imgUrl
 
-        Session.docObj = docObject;
+
 
         console.log("Conversation == >" + JSON.stringify(Session.conversation));
 
         await Http.postConversation(Constants.CONVERSATION_URL, Session.conversation).then((response) => {
             setLoading(false)
-            console.log("response === > " + JSON.stringify(response.data));
+            console.log("============================ conversation response === > " + JSON.stringify(response.data));
 
-            if (response.data.success) {
+            if (response.status >= 200) {
+                console.log("in")
+                if (response.data[0]?._id) {
+                    Session.conversationId = response.data[0]?._id;
+                    AsyncMemory.storeItem("conversationId", Session.conversationId)
+
+                } else if (response.data?._id) {
+                    AsyncMemory.storeItem("conversationId", Session.conversationId)
+                    Session.conversationId = response.data?._id;
+                }
+                console.log("Conversation id =" + Session.conversationId)
+                // if(response.data.
             }
             else {
             }
@@ -93,6 +106,13 @@ const CheckList = ({ navigation }) => {
         setDesc(item.checkListDesc)
         refRBSheet.current.open()
     }
+    const onImgPress = (item) => {
+        console.log(item);
+        setUri(item)
+        setVisible(true)
+
+    }
+
 
     const renderItem = ({ item, index }) => {
         return (
@@ -111,19 +131,21 @@ const CheckList = ({ navigation }) => {
                     backgroundColor: Colors.COLOR_WHITE,
 
                 }}>
-                    <View style={{
-                        height: "40%",
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderTopLeftRadius: 30,
-                        borderTopRightRadius: 30,
+                    <TouchableOpacity
+                        onPress={() => onImgPress(item.checkListImgUrl)}
+                        style={{
+                            height: "40%",
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderTopLeftRadius: 30,
+                            borderTopRightRadius: 30,
 
-                    }}>
+                        }}>
                         <Image style={{
                             height: 150,
                             width: 150,
                         }} source={{ uri: item.checkListImgUrl }} resizeMode="contain" />
-                    </View>
+                    </TouchableOpacity>
                     <View style={{
                         height: "60%",
                         borderBottomLeftRadius: 30,
@@ -203,9 +225,9 @@ const CheckList = ({ navigation }) => {
             <Loader loading={loading} ></Loader>
             <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                    {/* <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                         <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: 10 }} >
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                             <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 40, width: 40, borderRadius: 30 }} />
@@ -218,7 +240,7 @@ const CheckList = ({ navigation }) => {
                 </View>
             </View>
 
-            <Carousel
+            {/* <Carousel
                 // ref={(c) => { this._carousel = c; }}
                 layout='default'
                 data={data}
@@ -227,6 +249,16 @@ const CheckList = ({ navigation }) => {
                 sliderWidth={Screenwidth}
                 itemWidth={Screenwidth / 1.3}
             />
+
+            <Modal isVisible={visible} >
+
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => setVisible(false)} style={{ height: 50, justifyContent: 'center', alignItems: 'center', width: 50, position: 'absolute', right: 20, top: 20 }}>
+                        <Icon name='cancel' size={30} />
+                    </TouchableOpacity>
+                    <Image source={{ uri: uri }} style={{ height: 300, width: 200 }} resizeMode="contain" />
+                </View>
+            </Modal>
 
             <RBSheet
                 ref={refRBSheet}
@@ -256,90 +288,120 @@ const CheckList = ({ navigation }) => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <Text style={{ marginVertical: 30, marginLeft: 20, marginRight: 20, fontSize: 14, color: 'black' }}>{desc}</Text>
                 </ScrollView>
-            </RBSheet>
-            {/* <FlatList
+            </RBSheet> */}
+            <FlatList
                 nestedScrollEnabled={true}
                 data={data}
-                style = {{ marginTop : 20 }}
+                extraData={data}
+                numColumns={2}
+                key={data.checkListId}
+                style={{ marginTop: 20 }}
                 keyExtractor={item => item.checkListId}
                 renderItem={({ item }) =>
-                    <View style={{
-                        height: 600,
-                        marginTop: 10,
-                        width: "90%",
-                        borderRadius: 30,
-                        alignSelf: 'center',
-                        elevation: 10,
-                        marginBottom: 35,
-                        backgroundColor: Colors.COLOR_WHITE,
-
-                    }}>
+                    <View style={{ flex: 1 }}>
+                        {/* <View style={{ alignSelf: 'center', backgroundColor: 'red' }}>
+                    <Text>{item.checkListTitle}</Text>
+                </View> */}
                         <View style={{
-                            height: "40%",
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderTopLeftRadius: 30,
-                            borderTopRightRadius: 30,
+                            // height: 300,
+                            marginTop: 10,
+                            width: 150,
+                            borderRadius: 20,
+                            alignSelf: 'center',
+                            elevation: 10,
+                            marginBottom: 35,
+                            backgroundColor: Colors.COLOR_WHITE,
 
                         }}>
-                            <Image style={{
-                                height: 200,
-                                width: 200,
-                            }} source={{ uri: item.checkListImgUrl }} resizeMode="contain" />
-                        </View>
-                        <View style={{
-                            height: "60%",
-                            borderBottomLeftRadius: 30,
-                            borderBottomRightRadius: 30,
-                            justifyContent: 'space-evenly'
-                        }}>
-                            <Text style={{
-                                marginLeft: 10,
-                                marginTop: 10,
-                                fontSize: 16,
-                                color: Colors.COLOR_BLACK,
-                                fontWeight: 'bold'
-                            }}>Title</Text>
-                            <Text style={{
-                                marginLeft: 10,
-                                marginTop: 10,
-                                fontSize: 14,
-                                color: 'grey',
-                                width: 300,
-                            }}>{item.checkListTitle}</Text>
-                            <Text style={{
-                                marginLeft: 10,
-                                marginTop: 10,
-                                fontSize: 16,
-                                color: Colors.COLOR_BLACK,
-                                fontWeight: 'bold'
-                            }}>Description</Text>
-                            <ScrollView fadingEdgeLength={20} style={{ height: 70, width: "90%", marginLeft: 10 }}>
-                                <Text style={{
-                                    fontSize: 14,
-                                    color: 'grey'
-                                }}>{item.checkListDesc}</Text>
-                            </ScrollView>
+                            <TouchableOpacity
+                                onPress={() => onImgPress(item.checkListImgUrl)}
+                                style={{
+                                    // height: "40%",
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderTopLeftRadius: 30,
+                                    borderTopRightRadius: 30,
 
-                        </View>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('WebViewCheckList', { item })}
-                            style={{
-                                height: 40,
-                                width: "100%",
-                                backgroundColor: Colors.COLOR_THEME,
+                                }}>
+                                <Image style={{
+                                    height: 120,
+                                    width: 120,
+                                    marginTop: 20,
+                                    marginBottom: 20
+                                }} source={{ uri: item.checkListImgUrl }} resizeMode="contain" />
+                            </TouchableOpacity>
+                            <View style={{
+                                // height: "60%",
                                 borderBottomLeftRadius: 30,
                                 borderBottomRightRadius: 30,
-                                position: 'absolute',
-                                bottom: 0,
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                                marginBottom: 20
                             }}>
-                            <Text style={{ fontWeight: '600', color: 'black' }}>Check</Text>
-                        </TouchableOpacity>
+                                {/* <Text style={{
+                            marginLeft: 10,
+                            marginTop: 10,
+                            fontSize: 16,
+                            color: Colors.COLOR_BLACK,
+                            fontWeight: 'bold'
+                        }}>Title</Text> */}
+                                <Text style={{
+                                    marginBottom: 20,
+                                    marginLeft: 20,
+                                    fontSize: 14,
+                                    color: Colors.COLOR_BLACK,
+                                    fontWeight: 'bold',
+                                    width: 100,
+                                }}>{item.checkListTitle}</Text>
+                                {/* <Text style={{
+                            marginLeft: 10,
+                            marginTop: 10,
+                            fontSize: 16,
+                            color: Colors.COLOR_BLACK,
+                            fontWeight: 'bold'
+                        }}>Description</Text> */}
+                                {/* <ScrollView scrollEnabled={false} fadingEdgeLength={100} showsVerticalScrollIndicator={false} style={{ maxHeight: 120 }}>
+                                    <View style={{ margin: 10 }}>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            fontWeight: '500',
+                                            color: 'grey',
+                                            justifyContent: "center"
+                                        }}>{item.checkListDesc.trim()}</Text>
+                                    </View>
+                                </ScrollView>
+                                <TouchableOpacity
+                                    onPress={() => showMoreClick(item)}
+                                    style={{ marginRight: 10, alignSelf: 'flex-end' }}>
+                                    <Text style={{
+                                        fontSize: 12,
+                                        fontWeight: 'bold',
+                                        color: 'grey',
+                                        justifyContent: "center",
+
+                                    }}>Show more</Text>
+                                </TouchableOpacity> */}
+
+                            </View>
+                            <TouchableOpacity
+
+                                onPress={() => navigation.navigate('WebViewCheckList', { item })}
+                                style={{
+                                    height: 30,
+                                    width: "100%",
+                                    backgroundColor: Colors.COLOR_THEME,
+                                    borderBottomLeftRadius: 20,
+                                    borderBottomRightRadius: 20,
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+
+                                }}>
+                                <Text style={{ fontWeight: '600', color: 'white' }}>Check</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 }
-            /> */}
+            />
         </View>
     )
 }

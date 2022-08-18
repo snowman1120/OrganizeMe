@@ -16,6 +16,8 @@ import Alerts from '../utils/Alerts'
 import AsyncMemory from '../utils/AsyncMemory'
 import { useAppDispatch, useAppSelector } from '../redux/app/hooks'
 import { incremented, addMsg } from '../redux/slices/chat/chatSlice'
+import Video from 'react-native-video'
+import logoVedio from '../assets/logo.mp4'
 
 const Login = ({ navigation }) => {
 
@@ -35,53 +37,62 @@ const Login = ({ navigation }) => {
     const [pass, setPass] = useState("");
     const [openAlert, setOpenAlert] = useState(false)
     const [msg, setMsg] = useState("")
-    const [buttonTxt, setButtonTxt] = useState("")
+    const [buttonTxt, setButtonTxt] = useState("Ok")
     const [success, setSuccess] = useState(false);
 
 
     const pasRef = useRef();
+    const videoRef = useRef();
+
 
     const onLoginClick = async () => {
         console.log("LoginPresed");
-        setLoading(true)
 
-        Session.signInObj.email = email;
-        Session.signInObj.password = pass;
+        if (email == "" || pass == "") {
+            setOpenAlert(true)
+            setMsg("Enter Credentials")
+        }
+        else {
+            setLoading(true)
 
-        await Http.post(Constants.END_POINT_SIGNIN, Session.signInObj).then((response) => {
-            setLoading(false)
-            console.log(response.data);
-            if (response.data.success) {
-                setSuccess(true)
-                Session.userObj = response.data.data.user[0]
-                Session.docObj = response.data.data.doctor[0]
-                AsyncMemory.storeItem("userObj", Session.userObj)
-                AsyncMemory.storeItem("docObj", Session.docObj)
-                if (response.data?.data?.user[0]?.userPackageId != "") {
-                    navigation.replace("BottomTab")
+            Session.signInObj.email = email;
+            Session.signInObj.password = pass;
+
+            await Http.post(Constants.END_POINT_SIGNIN, Session.signInObj).then((response) => {
+                setLoading(false)
+                console.log(response.data);
+                if (response.data.data.user[0]?.userId) {
+                    setSuccess(true)
+                    Session.userObj = response.data.data.user[0]
+                    Session.docObj = response.data.data.doctor[0]
+                    AsyncMemory.storeItem("userObj", Session.userObj)
+                    AsyncMemory.storeItem("docObj", Session.docObj)
+                    if (response.data?.data?.user[0]?.userPackageId != "") {
+                        navigation.replace("BottomTab")
+                    }
+                    else {
+                        navigation.replace("Package")
+                    }
+                    // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
                 }
                 else {
-                    navigation.replace("Package")
+                    setLoading(false)
+                    setSuccess(false)
+                    setButtonTxt("Cancel")
+                    setMsg("Invalid Credentials")
+                    setOpenAlert(true)
                 }
-                // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
-            }
-            else {
-                setLoading(false)
-                setSuccess(false)
+
+
+            }, (error) => {
+                console.log(error);
                 setButtonTxt("Cancel")
                 setMsg(response.data.message)
+                setLoading(false)
                 setOpenAlert(true)
-            }
 
-
-        }, (error) => {
-            console.log(error);
-            setButtonTxt("Cancel")
-            setMsg(response.data.message)
-            setLoading(false)
-            setOpenAlert(true)
-
-        })
+            })
+        }
     }
 
 
@@ -258,10 +269,13 @@ const Login = ({ navigation }) => {
                 <View style={{ marginTop: 20 }}>
                     <Text style={TextStyle.Styles.TEXT_STYLE_DEFAULT_BOLD}>Get Organized</Text>
                 </View>
+                <Video source={logoVedio}
+                    style={{ height: 200, width: 200, backgroundColor: 'white' }}
+                    ref={videoRef} />
                 <View style={{
                     alignItems: 'center'
                 }}>
-                    <Text style={TextStyle.Styles.TEXT_STYLE_DEFAULT_BOLD}>WELCOME BACK</Text>
+                    {/* <Text style={TextStyle.Styles.TEXT_STYLE_DEFAULT_BOLD}>WELCOME BACK</Text> */}
                     <Text style={TextStyle.Styles.TEXT_STYLE_DEFAULT}>Login to your account</Text>
                 </View>
             </View>

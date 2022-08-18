@@ -20,7 +20,7 @@ import { io } from "socket.io-client";
 import uuid from 'react-native-uuid';
 const SERVER = "http://194.233.69.219:3000";
 import { useAppDispatch, useAppSelector } from '../redux/app/hooks'
-import { incremented, addMsg } from '../redux/slices/chat/chatSlice'
+import { reset, addMsg } from '../redux/slices/chat/chatSlice'
 import Session from '../utils/Session'
 import DocumentPicker from "react-native-document-picker"
 import RNFetchBlob from "react-native-fetch-blob";
@@ -28,6 +28,7 @@ import Constants from '../http/Constants'
 import Http from '../http/Http'
 import Modal from 'react-native-modal'
 import AsyncMemory from '../utils/AsyncMemory'
+import Firebase from '../firebase/Firebase'
 
 //const socket = useRef(io(SERVER));
 
@@ -36,12 +37,9 @@ import AsyncMemory from '../utils/AsyncMemory'
 const Chat = ({ navigation }) => {
 
     let docObject = []
+    let conversationId
 
-    // console.log("user object === >" + JSON.stringify(Session.userObj));
-    // console.log("Doctor user object === >" + JSON.stringify(Session.docUserObj));
     console.log("==========================Chat Screen==============================");
-    // console.log("session doc object" + JSON.stringify(Session.docObj));
-    // console.log("session user object" + JSON.stringify(Session.userObj));
 
     const [messages, setMessages] = useState([]);
     const [exsists, setExsists] = useState(false)
@@ -52,220 +50,363 @@ const Chat = ({ navigation }) => {
     const [visible, setVisible] = useState(false)
     const [modalImg, setMoadlImg] = useState("")
     const [id, setId] = useState("")
-
+    const [present, setPresent] = useState(true)
 
     const socket = io(SERVER);
     let m = []
     const value = useAppSelector((State) => State.chat.value)
     const dispatch = useAppDispatch()
-    // console.log("=======================REDUX CALLED===========================================");
-    // console.log("data in redux  on load== >" + JSON.stringify(value));
 
 
 
-    console.log("==================================================================");
     const useRedux = (message) => {
-        console.log("Redux" + JSON.stringify(message));
-        dispatch(addMsg(message))
-        //getReduxChat()
+        // dispatch(addMsg(message))
 
     }
 
-    const restoreMessage = () => {
+    // const restoreMessage = () => {
 
 
-        console.log("===========================================");
-        console.log("Restoring messages");
 
-        console.log("restore messages length == > " + value.length);
-        console.log("===========================================");
+    //     for (let x = value?.length - 1; x >= 0; x--) {
 
-        for (let x = value?.length - 1; x >= 0; x--) {
-
-            let obj = value[x];
-            // console.log("obj ===>" + JSON.stringify(obj));
-            let msg = obj[0];
-            // console.log("Msg === >" + JSON.stringify(msg));
-            if (msg?.type == "img") {
-                console.log("Inside If === > type == > img");
-                setMessages(messages => [...messages,
-                {
-                    _id: uuid.v4(),
-                    text: '',
-                    image: msg?.url,
-                    createdAt: new Date(),
-                    user: {
-                        _id: msg?.user._id,
-                        name: msg?.user.name,
-                        avatar: msg?.user.avatar,
-                    },
-                }
-                    ,
-                ]);
+    //         let obj = value[x];
+    //         let msg = obj[0];
+    //         if (msg?.type == "img") {
+    //             setMessages(messages => [...messages,
+    //             {
+    //                 _id: uuid.v4(),
+    //                 text: '',
+    //                 image: msg?.url,
+    //                 createdAt: new Date(),
+    //                 user: {
+    //                     conversationId: Session.conversationId,
+    //                     _id: msg?.user._id,
+    //                     name: msg?.user.name,
+    //                     avatar: msg?.user.avatar,
+    //                 },
+    //             }
+    //                 ,
+    //             ]);
 
 
-            }
+    //         }
 
 
-            else if (msg?.type == "pdf") {
-                console.log("Inside Else if === > Type == > pdf ");
-                console.log("msg === >" + JSON.stringify(msg));
-                setMessages(messages => [...messages,
-                {
-                    _id: uuid.v4(),
-                    text: <TouchableOpacity onPress={() => Linking.openURL(msg.url)}><Text>{msg.text}</Text></TouchableOpacity>,
-                    createdAt: new Date(),
-                    url: msg?.url,
-                    user: {
-                        _id: msg?.user._id,
-                        name: msg?.user.name,
-                        avatar: msg?.user.avatar,
-                    },
-                }
-                    ,
-                ]);
-            }
+    //         else if (msg?.type == "pdf") {
+    //             setMessages(messages => [...messages,
+    //             {
+    //                 _id: uuid.v4(),
+    //                 text: <TouchableOpacity onPress={() => Linking.openURL(msg.url)}><Text>{msg.text}</Text></TouchableOpacity>,
+    //                 createdAt: new Date(),
+    //                 url: msg?.url,
+    //                 user: {
+    //                     conversationId: Session.conversationId,
+    //                     _id: msg?.user._id,
+    //                     name: msg?.user.name,
+    //                     avatar: msg?.user.avatar,
+    //                 },
+    //             }
+    //                 ,
+    //             ]);
+    //         }
 
-            else {
-                console.log("Inside Else === > Type == > text ");
-                setMessages(messages => [...messages,
-                {
-                    _id: uuid.v4(),
-                    text: msg?.text,
-                    createdAt: new Date(),
-                    user: {
-                        _id: msg?.user._id,
-                        name: msg?.user.name,
-                        avatar: msg?.user.avatar,
-                    },
-                }
-                    ,
-                ]);
-            }
-        }
-        //console.log("=================================================");
-        // console.log("Message State ==== >" + JSON.stringify(messages));
-        //  console.log("=================================================");
-    }
+    //         else {
+    //             setMessages(messages => [...messages,
+    //             {
+    //                 _id: uuid.v4(),
+    //                 text: msg?.text,
+    //                 createdAt: new Date(),
+    //                 user: {
+    //                     conversationId: Session.conversationId,
+    //                     _id: msg?.user._id,
+    //                     name: msg?.user.name,
+    //                     avatar: msg?.user.avatar,
+    //                 },
+    //             }
+    //                 ,
+    //             ]);
+    //         }
+    //     }
+    // }
 
     const getDocObject = async () => {
 
 
         docObject = await AsyncMemory.retrieveItem('docObj')
-        console.log("=====================================================================");
-        console.log(" const Session doctor object array === >" + JSON.stringify(docObject.userId));
+        conversationId = await AsyncMemory.retrieveItem('conversationId')
         setId(docObject.userId)
-        console.log("=====================================================================");
 
     }
-    // console.log(socket);
+
+
+    const reloadOldChats = async (id) => {
+        console.log("==============Reload Old Chats API=====================");
+        console.log("session conversation id from api response in reaload chats" + JSON.stringify(id));
+        setLoading(true)
+
+        await Http.getOldChats(id).then((response) => {
+            setLoading(false)
+            console.log("response data === > " + JSON.stringify(response.data));
+            if (response.data == "" || response.data == []) {
+                return
+            }
+            else {
+                if (response.data?.length >= 2) {
+                    for (let i = 0; i < response.data.length; i++) {
+                        console.log("message to push in store === >" + JSON.stringify(response.data[i]));
+                        if (response.data[i]?.type == "img") {
+                            console.log("inside img condition of mongoDb Api");
+                            setMessages(messages => [...messages,
+                            {
+                                _id: uuid.v4(),
+                                text: '',
+                                image: response.data[i]?.url,
+                                createdAt: new Date(),
+                                user: {
+                                    conversationId: Session.conversationId,
+                                    _id: response.data[i]?.senderId,
+                                    name: Session.docObj.userName,
+                                    avatar: Session.docObj.imgUrl,
+                                },
+                            }
+                                ,
+                            ]);
+
+
+                        }
+                        else if (response.data[i]?.type == "pdf") {
+                            console.log("inside pdf condition of mongoDb Api");
+                            setMessages(messages => [...messages,
+                            {
+                                _id: uuid.v4(),
+                                text: <TouchableOpacity onPress={() => Linking.openURL(response.data[i].url)}><Text>{response.data[i].text}</Text></TouchableOpacity>,
+                                createdAt: new Date(),
+                                url: response.data[i]?.text,
+                                user: {
+                                    conversationId: Session.conversationId,
+                                    _id: response.data[i]?.senderId,
+                                    name: Session.docObj.userName,
+                                    avatar: Session.docObj.imgUrl,
+                                },
+                            }
+                                ,
+                            ]);
+                        }
+
+                        else {
+                            console.log("inside msg condition of mongoDb Api");
+                            setMessages(messages => [...messages,
+                            {
+                                _id: uuid.v4(),
+                                text: response.data[i]?.text,
+                                createdAt: new Date(),
+                                user: {
+                                    conversationId: Session.conversationId,
+                                    _id: response.data[i]?.senderId,
+                                    name: Session.docObj.userName,
+                                    avatar: Session.docObj.imgUrl,
+                                },
+                            }
+                                ,
+                            ]);
+                        }
+
+                        setPresent(false)
+                    }
+                }
+                else {
+                    if (response.data[0]?.type == "img") {
+                        console.log("inside img condition of mongoDb Api");
+                        setMessages(messages => [...messages,
+                        {
+                            _id: uuid.v4(),
+                            text: '',
+                            image: response.data[0]?.url,
+                            createdAt: new Date(),
+                            user: {
+                                conversationId: Session.conversationId,
+                                _id: response.data[0]?.senderId,
+                                name: Session.docObj.userName,
+                                avatar: Session.docObj.imgUrl,
+                            },
+                        }
+                            ,
+                        ]);
+
+
+                    }
+                    else if (response.data[0]?.type == "pdf") {
+                        console.log("inside pdf condition of mongoDb Api");
+                        setMessages(messages => [...messages,
+                        {
+                            _id: uuid.v4(),
+                            text: <TouchableOpacity onPress={() => Linking.openURL(response.data[0].url)}><Text>{response.data[0].text}</Text></TouchableOpacity>,
+                            createdAt: new Date(),
+                            url: response.data[0]?.url,
+                            user: {
+                                conversationId: Session.conversationId,
+                                _id: response.data[0]?.senderId,
+                                name: Session.docObj.userName,
+                                avatar: Session.docObj.imgUrl,
+                            },
+                        }
+                            ,
+                        ]);
+                    }
+
+                    else {
+                        console.log("inside msg condition of mongoDb Api");
+                        setMessages(messages => [...messages,
+                        {
+                            _id: uuid.v4(),
+                            text: response.data[0]?.text,
+                            createdAt: new Date(),
+                            user: {
+                                conversationId: Session.conversationId,
+                                _id: response.data[0]?.senderId,
+                                name: Session.docObj.userName,
+                                avatar: Session.docObj.imgUrl,
+                            },
+                        }
+                            ,
+                        ]);
+                    }
+
+                    setPresent(false)
+                }
+            }
+
+        }, (error) => {
+            console.log(error);
+        })
+
+        setPresent(false)
+
+    }
+
+    const onConversation = async () => {
+
+
+        Session.conversation.senderId = Session.userObj.userId
+        Session.conversation.senderName = Session.userObj.userName
+        Session.conversation.receiverId = Session.docObj.userId
+        Session.conversation.receiverName = Session.docObj.userName
+        Session.conversation.conversationName = Session.userObj.userName
+        Session.conversation.senderImgUrl = Session.userObj.imgUrl
+        Session.conversation.receiverImgUrl = Session.docObj.imgUrl
+
+
+
+
+        if (Session.conversationId != null || Session.conversationId != undefined || Session.conversationId == "") {
+            await Http.postConversation(Constants.CONVERSATION_URL, Session.conversation).then((response) => {
+                setLoading(false)
+
+                if (response.status >= 200) {
+                    if (response.data[0]?._id) {
+                        Session.conversationId = response.data[0]?._id;
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+                        console.log("Api REsponse ===>  ConverationID == >" + JSON.stringify(response.data[0]?._id));
+                        reloadOldChats(response.data[0]?._id)
+
+                    } else if (response.data?._id) {
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+                        Session.conversationId = response.data?._id;
+                        reloadOldChats(response.data?._id)
+                    }
+                }
+                else {
+                }
+
+
+            }, (error) => {
+                console.log(error);
+            })
+        }
+        else {
+            console.log("Session Conversation ID is already stored");
+        }
+
+    }
 
     useEffect(() => {
-
-        if(loading){
-            console.log("loader true")
-            return;
-        }else{
-            console.log("loader false")
-           // return;
-        }
+        onConversation()
         getDocObject()
-        // console.log("value  length == >" + value.length);
+        Firebase()
 
-        // if (value.length != 0) {
-        //     restoreMessage()
-        // }
-        console.log("Before useeffect socket.on");
+
+
+
         socket.on('connect', () => {
             console.log("I'm connected with the back-end");
         });
+        socket.emit("addUser", Session.userObj.userId);
+
         socket.on('welcomeMessage', msg => {
-            console.log("Inside useeffect socket.on");
-            // console.log("welcomeMessage:" + msg);
-            console.log("value  length  of redux store== >" + value.length);
 
 
             console.log("Doc Objec " + docObject.userId);
 
-            if (value.length == 0) {
-                console.log("Inside iffff");
-                m = [
-                    {
-                        _id: uuid.v4(),
-                        text: msg,
-                        createdAt: new Date(),
-                        user: {
-                            _id: docObject.userId,
-                            name: docObject.userName,
-                            avatar: docObject.imgUrl,
-                        },
-                        // image:'http://194.233.69.219/general/doctor.jpg'
+            console.log("Inside iffff");
+            m = [
+                {
+                    _id: uuid.v4(),
+                    text: msg,
+                    createdAt: new Date(),
+                    user: {
+                        conversationId: Session.conversationId,
+                        _id: docObject.userId,
+                        name: docObject.userName,
+                        avatar: docObject.imgUrl,
                     },
-                ];
-                setMessages(m)
-                useRedux(m)
+                    // image:'http://194.233.69.219/general/doctor.jpg'
+                },
+            ]
 
-            }
-            else {
-                console.log("Inside Else restoring msg");
-                restoreMessage()
-            }
-
-            console.log("Outside if else");
-
+            // setMessages(m)
+            setMessages(previousMessages => GiftedChat.append(previousMessages, m))
+            // useRedux(m)
         });
         socket.on('chatmessage', msg => {
             console.log("chatmessage:" + msg);
         });
         socket.on('clientMessage', msg => {
             console.log("Recieving message");
-
+            console.log("msgg == >" + JSON.stringify(msg));
             onReceive([
                 {
                     _id: uuid.v4(),
                     text: msg,
                     createdAt: new Date(),
                     user: {
-                        _id:docObject.userId,
+                        conversationId: Session.conversationId,
+                        _id: docObject.userId,
                         name: docObject.userName,
                         avatar: docObject.imgUrl,
                     },
                 },
             ])
-            // useRedux([
-            //     {
-            //         _id: uuid.v4(),
-            //         text: msg,
-            //         createdAt: new Date(),
-            //         user: {
-            //             _id: 2,
-            //             name: 'React Native',
-            //             avatar: 'http://194.233.69.219/general/doctor.jpg',
-            //         },
-            //     },
-            // ])
-        });
-        socket.on('message', msg => {
-            // console.log("message:" + msg);
+
         });
 
-        // console.log("Messages == >" + JSON.stringify(messages));
 
     }, [])
 
+
+
     const onReceive = useCallback((messages = []) => {
         //  socket.emit('doctorMessage', messages);
+        console.log("messages === >" + JSON.stringify(messages));
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-        useRedux(messages)
+        // useRedux(messages)
 
 
     })
     const onSend = useCallback((messages = []) => {
-        // console.log("Messages == >" + JSON.stringify(messages));
         socket.emit('doctorMessage', messages);
+        console.log("Messsage sendd === >" + JSON.stringify(messages));
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-        // console.log("send msg = >" + JSON.stringify(messages));
-        useRedux(messages)
     })
 
     const renderActions = (props) => {
@@ -296,7 +437,7 @@ const Chat = ({ navigation }) => {
         //     quality: 0.25,
         //     includeBase64: true,
         // };
-       // setLoading(true)
+        // setLoading(true)
 
         // ImagePicker.launchImageLibrary(options, getImg);
         ImagePicker.launchImageLibrary({
@@ -312,44 +453,26 @@ const Chat = ({ navigation }) => {
     };
 
     const onImageUpload = async (image) => {
-        console.log("Image Uploaded");
-        // console.log(" onUpload Image ===== > " + JSON.stringify(image.assets[0].uri));
         Session.cleanImgs()
-        console.log(image.length);
         if (image.length == undefined) {
             // setLoading(true)
-            console.log("iffffff")
-            console.log("ImageUri === >" + JSON.stringify(image.assets[0].uri));
             await uploadImages(image.assets[0].uri)
 
         }
         else {
-            // setLoading(true)
 
-            // var imageObj = [];
-
-            // for (let i = 0; i < image.length; i++) {
-
-            //     await uploadImages(image.assets[0].uri)
-
-            // }
         }
-        // setLoading(false)
     }
     const uploadImages = async (imageObj) => {
         setLoading(true)
 
-        console.log("================================== imgs object===================================");
-        // console.log("Image Obj === >" + JSON.stringify(imageObj));
         var formdata = new FormData();
         formdata.append("file", {
             name: imageObj,
             type: "image/jpeg",
             uri: imageObj
         }
-            // .split("/").pop()
         )
-        console.log("Form Data == >" + JSON.stringify(formdata));
         await Http.PostImage(Constants.END_POINT_POST_IMAGE, formdata).then(response => response.json())
             .then((json) => {
                 setLoading(false)
@@ -369,6 +492,7 @@ const Chat = ({ navigation }) => {
                                 createdAt: new Date(),
                                 type: "img",
                                 user: {
+                                    conversationId: Session.conversationId,
                                     _id: Session.userObj.userId,
                                     name: Session.userObj.userName,
                                     avatar: Session.userObj.imgUrl,
@@ -391,10 +515,6 @@ const Chat = ({ navigation }) => {
 
     const uploadTask = async (fileName, data, type) => {
         setLoading(true)
-        console.log("===========================Upload Task=================================");
-        console.log("fileName = " + fileName + " , data= base64 , type = " + type + "data === >" + data);
-        // setProgressUpload(0);
-        // setProgressShow(true);
 
         const bodyFormData = new FormData();
         if (type == "image") {
@@ -408,41 +528,16 @@ const Chat = ({ navigation }) => {
             });
 
         }
-        // const config = {
-        //     headers: {
-        //         // Accept: "application/json",
-        //         "Content-Type": "multipart/form-data",
-        //         Authorization: "Bearer " + props.apiToken,
-        //     },
-        //     onUploadProgress: function (progressEvent) {
-        //         var percentCompleted = Math.round(
-        //             (progressEvent.loaded * 100) / progressEvent.total
-        //         );
-        //         setProgressUpload(percentCompleted / 100);
-        //         console.log("Upload Progress" + percentCompleted);
-        //     },
-        //     onDownloadProgress: function (progressEvent) {
-        //         var percentCompleted = Math.round(
-        //             (progressEvent.loaded * 100) / progressEvent.total
-        //         );
-        //         console.log("Download Progress " + percentCompleted);
-        //     },
-        // };
-
-        console.log(" Form Data Document ==== >" + JSON.stringify(bodyFormData));
-
 
         await Http.PostImage(Constants.END_POINT_POST_IMAGE, bodyFormData).then(response => response.json())
             .then((json) => {
                 setLoading(false)
-                console.log(json);
-                // console.log("==================================Image Url =====================================");
-                // console.log(json.data.imageUrl);
+                console.log("==================================Image Url =====================================");
+                console.log(json.data.imageUrl);
 
                 if (json.success == true) {
-
+                    console.log("================= on send Document ===================== ")
                     onSend(
-
                         m = [
                             {
                                 _id: uuid.v4(),
@@ -451,15 +546,13 @@ const Chat = ({ navigation }) => {
                                 createdAt: new Date(),
                                 type: "pdf",
                                 user: {
+                                    conversationId: Session.conversationId,
                                     _id: Session.userObj.userId,
                                     name: Session.userObj.userName,
                                     avatar: Session.userObj.imgUrl,
                                 }
                             },
                         ]);
-
-                    // setImages(json.data.imageUrl)
-                    // useRedux(m)
 
                 }
 
@@ -469,104 +562,10 @@ const Chat = ({ navigation }) => {
                 console.log('request failed', error);
             });
 
-        // console.log("FormData " + JSON.stringify(bodyFormData));
 
-        // axios
-        //   .post(
-        //     HttpConstants.BASE_URL_MYDOC_API + HttpConstants.UPLOAD_MEDIA,
-        //     bodyFormData,
-        //     config
-        //   )
-        //   .then((response) => {
-        //     setProgressShow(false);
-
-        //     // var dataObj = response.data;
-        //     // var dataObj = JSON.parse(response.data);
-        //     console.log("-----------------------------------------------");
-        //     console.log(response.data);
-
-        //     console.log(response.data.data.filename);
-        //     console.log("-----------------------------------------------");
-
-        //     if (type == "image") {
-        //       // setDataUri(response.uri)
-        //       // sendImageMsg("https://homepages.cae.wisc.edu/~ece533/images/airplane.png");
-        //       sendImageMsg(response.data.data.filename);
-        //     } else if (type == "video") {
-        //       onSend([
-        //         {
-        //           _id: uuid.v4(),
-        //           text:
-        //             response.data.data.image_url?.replace(
-        //               "api.my-doc.com",
-        //               "static.my-doc.com"
-        //             ) +
-        //             "?type=referral-letter&access_token=" +
-        //             props.apiToken,
-        //           createdAt: new Date(),
-        //           user: {
-        //             _id: 1,
-        //             name: chatDetails.DoctorName,
-        //             avatar: chatDetails.DoctorImg,
-        //           },
-        //           // image: response.data.data.image_url,
-        //         },
-        //       ]);
-
-        //       sendImageMsg(response.data.data.filename);
-        //     } else {
-        //       onSend([
-        //         {
-        //           _id: uuid.v4(),
-        //           text:
-        //             response.data.data.image_url.replace(
-        //               "api.my-doc.com",
-        //               "static.my-doc.com"
-        //             ) +
-        //             "?type=referral-letter&access_token=" +
-        //             props.apiToken,
-        //           createdAt: new Date(),
-        //           user: {
-        //             _id: 1,
-        //             name: chatDetails.DoctorName,
-        //             avatar: chatDetails.DoctorImg,
-        //           },
-        //           // video: response.data.data.image_url,
-        //         },
-        //       ]);
-        //       sendDocumentMsg(response.data.data.filename);
-        //     }
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //     setProgressShow(false);
-        //     // sendImageMsg("")
-        //   });
     };
 
 
-    // const getImg = (response) => {
-    //     console.log("Response======>" + JSON.stringify(response));
-
-    //     if (response.didCancel != true) {
-    //         ImgToBase64.getBase64String(response.uri).then((base64String) => {
-    //             uploadTask(response.fileName, base64String, "image");
-    //         });
-    //         onSend([
-    //             {
-    //                 _id: uuid.v4(),
-    //                 // text: response.uri,
-    //                 createdAt: new Date(),
-    //                 user: {
-    //                     _id: 1,
-    //                     name: Session.userObj.userName,
-    //                     avatar: Session.userObj.imgUrl,
-    //                 },
-    //                 image: response.uri,
-    //             },
-    //         ]);
-    //     }
-    // };
 
     const handlePickDocument = async () => {
         try {
@@ -584,45 +583,17 @@ const Chat = ({ navigation }) => {
 
             });
 
-            // uploadTask(res.name,  res.uri, "Document");
-            console.log("res : " + JSON.stringify(res));
 
-            console.log("res ui == >" + res[0].uri);
             if (Platform.OS == "ios") {
                 uploadTask(res.name, res.fileCopyUri, "Document");
             } else {
-                console.log("In Else == > Android Platform");
                 let m = res[0]
-                console.log("M == >" + JSON.stringify(m));
-                // RNFetchBlob
-                //     .fs
-                //     .stat(m.uri)
-                //     .then((stats) => {
-                //         console.log("Stats path === >" + stats.path);
-                //         uploadTask(m.name, "file://" + m.uri, "Document");
-                //     })
-                //     .catch((err) => {
-                //         console.log("Error ==== > " + err);
-                //     })
-
                 uploadTask(res[0].name, res[0].fileCopyUri, "Document");
 
-                return
 
-                RNFetchBlob.fs
-                    .stat(res[0].uri)
-                    .then((stats) => {
-                        console.log(stats.path);
-
-                        uploadTask(res[0].name, "file://" + stats.path, "Document");
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
             }
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
-                // User cancelled the picker, exit any dialogs or menus and move on
             } else {
                 throw err;
             }
@@ -631,26 +602,19 @@ const Chat = ({ navigation }) => {
 
     const renderBubble = (props) => {
 
-       // setLoading(true)
-      //  console.log("Custom  Bubble  View");
-
         const { currentMessage } = props;
-       console.log("current Msg == >" + JSON.stringify(currentMessage));
-        // console.log("Props == >" + JSON.stringify(props));
-        // return
-
-       // console.log("set Id ===> === >" + id);
+        console.log("current Msg == >" + JSON.stringify(currentMessage));
 
         let imgChar = "jpg"
         let pdfChar = "pdf"
+        let docxChar = "docx"
 
-        console.log("id === >" +currentMessage.user._id );
         if (currentMessage.user._id == id) {
-
+            console.log("========================Doctor messages ================");
             if (currentMessage.url?.includes(pdfChar)) {
 
                 //setLoading(false)
-               // console.log("Insidde if pdf");
+                console.log("Insidde if pdf doctor");
                 return (
                     <View style={{ maxHeight: 80, maxWidth: "30%", marginVertical: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
                         <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
@@ -664,8 +628,8 @@ const Chat = ({ navigation }) => {
 
             }
             else if (currentMessage.image?.includes(imgChar)) {
-               // console.log("Insidde ELse if Img");
-              //  setLoading(false)
+                // console.log("Insidde ELse if Img");
+                //  setLoading(false)
                 return (
                     <View style={{ height: 200, width: 150, justifyContent: 'center', alignItems: 'center', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
                         <TouchableOpacity onPress={() => onImagePress(currentMessage.image)} style={{ height: 190, width: 150, justifyContent: 'center', alignItems: 'center' }} >
@@ -675,8 +639,8 @@ const Chat = ({ navigation }) => {
                 )
             }
             else {
-               // console.log("Insidde ELse Text");
-              //  setLoading(false)
+                // console.log("Insidde ELse Text");
+                //  setLoading(false)
                 return (
                     <View style={{ maxWidth: "80%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: "#f6f9fb", borderRadius: 10 }}>
                         <Text style={{ fontSize: 16, margin: 10, color: 'black' }}>{currentMessage.text}</Text>
@@ -685,11 +649,13 @@ const Chat = ({ navigation }) => {
             }
         }
         else {
+            console.log("========================User messages ================");
 
-            if (currentMessage.url?.includes(pdfChar)) {
+            if (currentMessage.url?.includes(pdfChar) || currentMessage.url?.includes(docxChar)) {
 
-             //   console.log("Insidde if pdf");
-             //   setLoading(false)
+                console.log("Insidde if pdf");
+                console.log("Insidde if pdf user");
+                //   setLoading(false)
                 return (
                     <View style={{ maxHeight: 80, marginVertical: 10, maxWidth: "30%", justifyContent: 'center', alignItems: 'center', marginHorizontal: 10, backgroundColor: "white", borderRadius: 10 }}>
                         <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
@@ -701,8 +667,8 @@ const Chat = ({ navigation }) => {
 
             }
             else if (currentMessage.image?.includes(imgChar)) {
-               // setLoading(false)
-             //   console.log("Insidde ELse if Img");
+                // setLoading(false)
+                //   console.log("Insidde ELse if Img");
                 return (
                     <View style={{ height: 200, width: 150, justifyContent: 'center', alignItems: 'center', backgroundColor: "#435ebe", borderRadius: 10 }}>
                         <TouchableOpacity onPress={() => onImagePress(currentMessage.image)} style={{ height: 190, width: 150, justifyContent: 'center', alignItems: 'center' }} >
@@ -712,8 +678,8 @@ const Chat = ({ navigation }) => {
                 )
             }
             else {
-              //  console.log("Insidde ELse Text");
-               // setLoading(false)
+                //  console.log("Insidde ELse Text");
+                // setLoading(false)
                 return (
                     <View style={{ maxWidth: "80%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: "#435ebe", borderRadius: 10 }}>
                         <Text style={{ fontSize: 16, margin: 10, color: 'white' }}>{currentMessage.text}</Text>
@@ -802,9 +768,9 @@ const Chat = ({ navigation }) => {
             <Loader loading={loading}></Loader>
             <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                    {/* <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                         <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: 10 }} >
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                             <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 40, width: 40, borderRadius: 30 }} />
@@ -822,6 +788,7 @@ const Chat = ({ navigation }) => {
                 onSend={messages => onSend(messages)}
                 renderTime={renderTime}
                 user={{
+                    conversationId: Session.conversationId,
                     _id: Session.userObj.userId,
                     name: Session.userObj.userName,
                     avatar: Session.userObj.imgUrl,

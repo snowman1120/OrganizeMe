@@ -19,6 +19,7 @@ const Tab = createBottomTabNavigator();
 
 
 
+
 const SettingStack = () => {
     const stack = createNativeStackNavigator();
     return (
@@ -53,6 +54,9 @@ const CheckStack = () => {
 
 
 const BottomTab = () => {
+
+
+
     return (
         <Tab.Navigator
             screenOptions={{
@@ -70,7 +74,7 @@ const BottomTab = () => {
 
             }}
 
-            initialRouteName={'CheckList'}>
+            initialRouteName={'Chat'}>
 
 
 
