@@ -21,8 +21,52 @@ const Package = ({ navigation }) => {
 
 
     useEffect(() => {
+        onConversation()
         loadPackages()
     }, []);
+
+    const onConversation = async () => {
+
+
+        Session.conversation.senderId = Session.userObj.userId
+        Session.conversation.senderName = Session.userObj.userName
+        Session.conversation.receiverId = Session.docObj.userId
+        Session.conversation.receiverName = Session.docObj.userName
+        Session.conversation.conversationName = Session.userObj.userName
+        Session.conversation.senderImgUrl = Session.userObj.imgUrl
+        Session.conversation.receiverImgUrl = Session.docObj.imgUrl
+
+
+
+
+        if (Session.conversationId == null || Session.conversationId == undefined || Session.conversationId == "") {
+            await Http.postConversation(Constants.CONVERSATION_URL, Session.conversation).then((response) => {
+                setLoading(false)
+
+                if (response.status >= 200) {
+                    if (response.data[0]?._id) {
+                        Session.conversationId = response.data[0]?._id;
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+
+                    } else if (response.data?._id) {
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+                        Session.conversationId = response.data?._id;
+                    }
+                }
+                else {
+                }
+
+
+            }, (error) => {
+                console.log(error);
+            })
+        }
+        else {
+            console.log("Session Conversation ID is already stored");
+        }
+
+    }
+
 
     const onBuyNowClick = async (data) => {
         setLoading(true)

@@ -178,27 +178,28 @@ const Profile = ({ navigation }) => {
             <Loader loading={loading}></Loader>
             <View style={{ height: 200, width: "100%", backgroundColor: Colors.COLOR_THEME, borderBottomLeftRadius: 100, borderBottomRightRadius: 100, position: "absolute" }}>
                 <View style={{ flexDirection: "row", marginTop: 20, marginLeft: 10 }}>
-                    <TouchableOpacity style = {{ flexDirection : "row" }} onPress={() => onBackHandler()}>
+                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => onBackHandler()}>
                         <Icon name="arrow-left" size={20} color="white" />
                         <Text style={{ fontSize: 16, fontWeight: "bold", color: 'white', marginLeft: 20 }}>User Profile</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={{ height: 600, width: "80%", backgroundColor: 'white', elevation: 10, position: "absolute", top: 130, alignSelf: "center", borderRadius: 30 }}>
-                <View style={{ height: "20%", borderRadius: 30, justifyContent: "flex-end", alignItems: "center" }}>
-                    <View style={{ height: 80, width: 80, backgroundColor: 'white', borderRadius: 50, position: "absolute", alignSelf: "center", top: -30, elevation: 10 }}>
-                        <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: 80, width: 80, borderRadius: 30 }} />
-                        <TouchableOpacity onPress={() => setVisible(true)} style={{ position: "absolute", bottom: -15, alignSelf: "center" }} >
+            <View style={{ width: "80%", backgroundColor: 'white', elevation: 10, position: "absolute", top: 70, alignSelf: "center", borderRadius: 30 }}>
+                <View style={{ height: "30%", borderRadius: 30, justifyContent: "flex-end", alignItems: "center" }}>
+
+                    <TouchableOpacity onPress={() => setVisible(true)} style={{ height: 80, width: 80, backgroundColor: 'white', borderRadius: 50, elevation: 10 }}>
+                        <Image source={{ uri: Session.userObj.imgUrl == "" ? "http://194.233.69.219/documents/0730232429.png" : Session.userObj.imgUrl }} style={{ height: "100%", width: "100%", borderRadius: 40 }} />
+                        {/* <TouchableOpacity onPress={() => setVisible(true)} style={{ position: "absolute", bottom: -20, alignSelf: "center" }} >
                             <Icon name="camera" size={20} />
-                        </TouchableOpacity>
-                    </View>
+                        </TouchableOpacity> */}
+                    </TouchableOpacity>
                     <View style={{ borderBottomWidth: 1, width: "90%" }}>
                         <Text style={{ fontSize: 16, fontWeight: "bold", color: 'black', textAlign: "center" }}>{Session.userObj.userName}</Text>
                         <Text style={{ fontSize: 12, color: 'black', marginBottom: 10, textAlign: "center" }}>{Session.userObj.email}</Text>
                     </View>
                 </View>
-                <View style={{ borderRadius: 30, height: "60%", backgroundColor: 'white', marginTop: 10 }}>
-                    <View style={{ height: 50, marginTop: 20, width: "100%", justifyContent: "space-around" }}>
+                <ScrollView showsVerticalScrollIndicator={false} style={{ borderRadius: 30, height: "60%", backgroundColor: 'white', marginTop: 10 }}>
+                    <View style={{ height: 50, marginTop: 10, width: "100%", justifyContent: "space-around" }}>
                         {/* <Text style={{ marginTop: 10, marginLeft: 10, color: 'black' }}>Name</Text> */}
                         {/* <Text style={{ marginTop: 10, marginLeft: 10, color: 'black', fontWeight: "bold" }}>123</Text> */}
                         <TextField
@@ -284,11 +285,12 @@ const Profile = ({ navigation }) => {
                             backgroundColor: Colors.COLOR_THEME,
                             borderRadius: 25,
                             alignSelf: 'center',
-                            marginTop: 20
+                            marginTop: 20,
+                            marginBottom: 40
                         }}>
                         <Text style={{ color: "white", fontWeight: 'bold' }}>Update</Text>
                     </TouchableOpacity>
-                </View>
+                </ScrollView>
             </View>
 
             <Modal isVisible={visible} style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

@@ -7,16 +7,16 @@ const chatSlice = createSlice({
     value: []
   },
   reducers: {
-    incremented(state){
-      state.value.push()
+    reset(state) {
+      state.value = []
     },
-    addMsg(state , action ) {
+    addMsg(state, action) {
       state.value.push(action.payload)
     }
   }
 })
 
-export const { incremented , addMsg  } = chatSlice.actions
+export const { reset, addMsg } = chatSlice.actions
 export default chatSlice.reducer
 
 const store = configureStore({

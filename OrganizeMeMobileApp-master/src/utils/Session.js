@@ -6,7 +6,12 @@ class Session {
     static userObj = [];
     static imgs = ""
     static docObj = []
+    static conversationId = '';
 
+
+    static cleanConversationId() {
+        this.conversationId = ""
+    }
 
     static cleanImgs() {
         this.imgs = []
@@ -17,7 +22,9 @@ class Session {
         receiverId: "",
         senderName: "",
         receiverName: "",
-        conversationName: ""
+        conversationName: "",
+        senderImgUrl: "",
+        receiverImgUrl: ""
     }
     static updateProfile = {
         userId: 1,
@@ -48,7 +55,7 @@ class Session {
         roleId: "2",
         authId: "1",
         password: "",
-        gender : "male"
+        gender: "male"
     }
     static socialSignInObj = {
         authId: "2",

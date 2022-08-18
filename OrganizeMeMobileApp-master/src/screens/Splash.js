@@ -40,31 +40,23 @@ export default class Splash extends Component {
         this.getCompanySettings()
         this.getPackages()
         this.performTimeConsumingTask()
-        Firebase()
+        // Firebase()
         // LocationServicesDialogBox.stopListener();
     }
 
 
     getCompanySettings = (redirectTo) => {
-        console.log("Get Company Settings");
         Http.get(Constants.END_POINT_GET_COMPANY_SETTINGS).then((response) => {
             this.setState({ loading: false })
-            // console.log(response.data);
 
             if (response.data.success) {
 
-                // console.log("trueeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-                // console.log("=============================Success==================================");
                 Session.companySettings = response.data.data.companySetting[0]
-                // console.log(Session.companySettings);
                 Session.appSettings = response.data.data.appSetting[0]
-                // console.log(Session.appSettings);
 
 
                 if (Session.appSettings.enableApp == "Y") {
-                    // console.log(" company Settings Signup ==== >  " + JSON.stringify(response.data.data.companySetting[0].showSignup));
                     Session.showSignupButton = response.data.data.companySetting[0].showSignup;
-                    // console.log("Show Signup Button ===== >" + Session.showSignupButton);
                     if (VersionInfo.appVersion == Session.appSettings.versionName) {
 
 
@@ -76,7 +68,6 @@ export default class Splash extends Component {
                             this.props.navigation.replace('Welcome')
                         } else {
 
-                            // SwitchNavigator.navigate(this.props, Route.Route_FROM_WELCOME);
                         }
                     }
                     else {
@@ -84,7 +75,6 @@ export default class Splash extends Component {
                     }
 
                 } else {
-                    //app is not enable show dialog and close the application
                     Utils.AlertAndShutDown("Info", Session.appSettings.message)
                 }
             } else {
@@ -102,15 +92,11 @@ export default class Splash extends Component {
 
     getPackages = async () => {
         // setLoading(true)
-        console.log("Get Company Packages");
         await Http.get(Constants.END_POINT_GETPACKAGES).then((response) => {
-            // setLoading(false)
-            // console.log("Get Packages === > " + response.data);
             if (response.data.success) {
                 Session.companyPackages = response.data.data
 
 
-                // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
             }
             else {
 
@@ -125,6 +111,50 @@ export default class Splash extends Component {
         // console.log("company packages all=== >" + JSON.stringify(Session.companyPackages));
     }
 
+    onConversation = async () => {
+
+        console.log(" ========================= On Conversation API ============================");
+
+        Session.conversation.senderId = Session.userObj.userId
+        Session.conversation.senderName = Session.userObj.userName
+        Session.conversation.receiverId = Session.docObj.userId
+        Session.conversation.receiverName = Session.docObj.userName
+        Session.conversation.conversationName = Session.userObj.userName
+        Session.conversation.senderImgUrl = Session.userObj.imgUrl
+        Session.conversation.receiverImgUrl = Session.docObj.imgUrl
+
+
+
+
+        if (Session.conversationId == null || Session.conversationId == undefined || Session.conversationId == "") {
+            await Http.postConversation(Constants.CONVERSATION_URL, Session.conversation).then((response) => {
+                // setLoading(false)
+
+                if (response.status >= 200) {
+                    if (response.data[0]?._id) {
+                        Session.conversationId = response.data[0]?._id;
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+                        this.props.navigation.replace('BottomTab')
+
+                    } else if (response.data?._id) {
+                        AsyncMemory.storeItem("conversationId", Session.conversationId)
+                        Session.conversationId = response.data?._id;
+                    }
+                }
+                else {
+                }
+
+
+            }, (error) => {
+                console.log(error);
+            })
+        }
+        else {
+            this.props.navigation.replace('BottomTab')
+            console.log("Session Conversation ID is already stored");
+        }
+
+    }
 
 
     performTimeConsumingTask = async () => {
@@ -158,16 +188,14 @@ export default class Splash extends Component {
         console.log("Before Async==========================================================");
         AsyncMemory.retrieveItem('userObj').then((userObj) => {
             if (userObj != null || userObj != undefined) {
+                AsyncMemory.retrieveItem('conversationId').then((conversationId) => Session.conversationId = conversationId)
+                AsyncMemory.retrieveItem('docObj').then((docObj) => Session.docObj = docObj)
                 // console.log("async user object ==== >" + JSON.stringify(userObj));
-                console.log("inside if");
                 Session.userObj = userObj;
-                console.log("session User Object " + JSON.stringify(Session.userObj));
 
                 if (Session.userObj.userPackageId != "") {
                     setTimeout(() => {
-
-                        this.props.navigation.replace('BottomTab')
-
+                        this.onConversation()
                     },
                         3000
                     );
@@ -181,14 +209,11 @@ export default class Splash extends Component {
             }
             else {
 
-                // console.log(userObj);
-                console.log("inside else");
-                // this.props.navigation.replace('Login')
                 setTimeout(() => {
-                    this.props.navigation.replace('Login')
+                    this.props.navigation.replace('LoginV2')
 
                 },
-                    2000
+                    3000
                 );
 
             }
@@ -197,14 +222,14 @@ export default class Splash extends Component {
         }).catch((error) => {
 
             console.log('error occurs: ' + error);
-            navigation.replace('Login')
+            navigation.replace('LoginV2')
         });
     }
 
     render() {
 
         return (
-            <View style={{ flex: 1,  justifyContent: 'center', backgroundColor : 'white', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'white', alignItems: 'center' }}>
                 {/* <Loader loading={this.state.loading}></Loader> */}
                 <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
                 {/* <Text style={{ fontSize: 26, fontWeight: 'bold', color: Colors.COLOR_BLACK }}>Organize Me</Text> */}
@@ -224,7 +249,7 @@ export default class Splash extends Component {
                 /> */}
 
                 <Video source={logoVedio}
-                    style={{ height: 200, width: 200 , backgroundColor : 'white' }}
+                    style={{ height: 200, width: 200, backgroundColor: 'white' }}
                     ref={(ref) => {
                         this.player = ref
                     }} />
