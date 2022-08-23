@@ -311,7 +311,7 @@ const Login = ({ navigation }) => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: Colors.COLOR_THEME, justifyContent: 'flex-end' }}>
+        <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE, justifyContent: 'flex-end' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading}></Loader>
             <Image source={require('../assets/logoTransparent.png')} style={{ height: "30%", width: "40%", position: 'absolute', top: 0, alignSelf: 'center' }} />

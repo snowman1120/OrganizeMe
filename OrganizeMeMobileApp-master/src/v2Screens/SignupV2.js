@@ -167,7 +167,7 @@ const SignupV2 = ({ navigation }) => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: Colors.COLOR_THEME, justifyContent: 'flex-end' }}>
+        <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE, justifyContent: 'flex-end' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading}></Loader>
             {/* <Image source={require('../assets/cover2.jpg')} style={{ height: "50%", width: "100%", position: 'absolute', top: 0 }} /> */}
