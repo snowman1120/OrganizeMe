@@ -314,7 +314,7 @@ const Login = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE, justifyContent: 'flex-end' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading}></Loader>
-            <Image source={require('../assets/logoTransparent.png')} style={{ height: "30%", width: "40%", position: 'absolute', top: 0, alignSelf: 'center' }} />
+            <Image source={require('../assets/logoTransparent.png')} style={{ height: "30%", width: "40%", position: 'absolute', top: 0, alignSelf: 'center' }} resizeMode="contain" />
             <View style={{ flex: 0.7, backgroundColor: 'white', borderTopRightRadius: 50, elevation: 10, borderTopLeftRadius: 50, justifyContent: 'space-evenly' }}>
                 <Text style={{ fontSize: 30, fontWeight: 'bold', color: "#6cbaeb", marginLeft: 30, marginTop: 20 }}>Sign In</Text>
                 <ScrollView>

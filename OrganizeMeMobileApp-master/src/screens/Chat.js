@@ -18,12 +18,12 @@ import {
 } from 'react-native-gifted-chat'
 import { io } from "socket.io-client";
 import uuid from 'react-native-uuid';
-const SERVER = "http://194.233.69.219:3000";
+const SERVER = "http://154.53.58.235:3000";
 import { useAppDispatch, useAppSelector } from '../redux/app/hooks'
 import { reset, addMsg } from '../redux/slices/chat/chatSlice'
 import Session from '../utils/Session'
 import DocumentPicker from "react-native-document-picker"
-import RNFetchBlob from "react-native-fetch-blob";
+// import RNFetchBlob from "react-native-fetch-blob";
 import Constants from '../http/Constants'
 import Http from '../http/Http'
 import Modal from 'react-native-modal'
