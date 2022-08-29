@@ -278,7 +278,7 @@ dependencies {
     implementation 'com.facebook.fresco:animated-webp:2.0.0'
     // For normal webp support add following line on android/app/build.gradle
     implementation 'com.facebook.fresco:webpsupport:2.0.0'
-
+    // implementation 'com.android.support:multidex:2.0.1'
   // If your app supports Android versions before Ice Cream Sandwich (API level 14)
  
    // For animated GIF support

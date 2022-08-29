@@ -21,7 +21,6 @@ import logoVedio from '../assets/logo.mp4'
 
 
 
-
 //Fb APP ID 
 //App ID:540937094082492
 
@@ -30,7 +29,7 @@ export default class Splash extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true
+            // loading: true
         }
     }
 
@@ -47,7 +46,7 @@ export default class Splash extends Component {
 
     getCompanySettings = (redirectTo) => {
         Http.get(Constants.END_POINT_GET_COMPANY_SETTINGS).then((response) => {
-            this.setState({ loading: false })
+            // this.setState({ loading: false })
 
             if (response.data.success) {
 
@@ -71,19 +70,19 @@ export default class Splash extends Component {
                         }
                     }
                     else {
-                        Utils.AlertAndOpenLink("Info", Session.appSettings.versionDesc, "market://details?id=" + VersionInfo.bundleIdentifier)
+                        // Utils.AlertAndOpenLink("Info", Session.appSettings.versionDesc, "market://details?id=" + VersionInfo.bundleIdentifier)
                     }
 
                 } else {
-                    Utils.AlertAndShutDown("Info", Session.appSettings.message)
+                    // Utils.AlertAndShutDown("Info", Session.appSettings.message)
                 }
             } else {
-                Utils.Alert("Info", "Oops! Something went wrong. Please try again later.")
+                // Utils.Alert("Info", "Oops! Something went wrong. Please try again later.")
             }
 
 
         }, (error) => {
-            Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
+            // Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
         })
 
 
@@ -100,13 +99,13 @@ export default class Splash extends Component {
             }
             else {
 
-                Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
+                // Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
             }
 
 
         }, (error) => {
             console.log(error);
-            Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
+            // Utils.Alert("Info", "Oops! Something went wrong. Please try again .")
         })
         // console.log("company packages all=== >" + JSON.stringify(Session.companyPackages));
     }
@@ -127,16 +126,21 @@ export default class Splash extends Component {
 
 
         if (Session.conversationId == null || Session.conversationId == undefined || Session.conversationId == "") {
+          console.log("inside main ifff");
             await Http.postConversation(Constants.CONVERSATION_URL, Session.conversation).then((response) => {
                 // setLoading(false)
-
+                console.log(" before inside  if");
+                console.log("response == >" + JSON.stringify(response.data) ); 
                 if (response.status >= 200) {
                     if (response.data[0]?._id) {
+                        console.log("inside if if");
                         Session.conversationId = response.data[0]?._id;
                         AsyncMemory.storeItem("conversationId", Session.conversationId)
                         this.props.navigation.replace('BottomTab')
 
                     } else if (response.data?._id) {
+                        console.log("inside else if");
+
                         AsyncMemory.storeItem("conversationId", Session.conversationId)
                         Session.conversationId = response.data?._id;
                     }
@@ -146,10 +150,11 @@ export default class Splash extends Component {
 
 
             }, (error) => {
-                console.log(error);
+                console.log("api error" + error);
             })
         }
         else {
+            console.log("inside else");
             this.props.navigation.replace('BottomTab')
             console.log("Session Conversation ID is already stored");
         }
@@ -248,11 +253,11 @@ export default class Splash extends Component {
                     onVideoEnd={() =>  console.log("vedio end")}
                 /> */}
 
-                <Video source={logoVedio}
+                <Video source={require('../assets/logo.mp4')}
                     style={{ height: 200, width: 200, backgroundColor: 'white' }}
                     ref={(ref) => {
                         this.player = ref
-                    }} />
+                    }} resizeMode="contain" />
                 {/* <Image source={require('../assets/splash.gif')} style={{
                         height: 400,
                         width: 350
