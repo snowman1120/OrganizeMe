@@ -7,18 +7,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:398685992086:android:ade38874bf848e7b987eb7",
+        "mobilesdk_app_id": "1:398685992086:android:0520d55bbf20867c987eb7",
         "android_client_info": {
-          "package_name": "com.organizeme"
+          "package_name": "com.axsosntech.organizeme"
         }
       },
       "oauth_client": [
         {
-          "client_id": "398685992086-6diqmqvgcjfq630m39ctmp051nk9jnno.apps.googleusercontent.com",
+          "client_id": "398685992086-7jrsrkk107i8atqpup4ln6fjenu46e2r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.organizeme",
+            "package_name": "com.axsosntech.organizeme",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "398685992086-fkn5dlkfe0p9schgbm4e3cldlus398jk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.axsosntech.organizeme",
+            "certificate_hash": "b827ba5a392a93dbebfc734695a806b10e6438ba"
           }
         },
         {
@@ -37,6 +45,49 @@
             {
               "client_id": "398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.OrganizeMe"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398685992086:android:ade38874bf848e7b987eb7",
+        "android_client_info": {
+          "package_name": "com.organizeme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqBeKZDzVZ51ciGd8hTKGW7seQ6eG2oOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.OrganizeMe"
+              }
             }
           ]
         }

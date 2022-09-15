@@ -6,7 +6,7 @@ const BuildConfig = require('react-native-build-config')
 import VersionInfo from 'react-native-version-info';
 
 
-export const ORGANIZE_ME_APPLICATION_ID = 'com.organizeme'
+export const ORGANIZE_ME_APPLICATION_ID = 'com.axsosntech.organizeme'
 const ORGANIZE_ME_M_ID = Constants.JWT;
 
 

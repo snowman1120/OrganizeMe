@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* OrganizeMeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* OrganizeMeTests.m */; };
-		104F8FE9DE122A1302EB3973 /* libPods-OrganizeMe.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F56F349CF567D8982B3633BC /* libPods-OrganizeMe.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		6A7242C57041C29E7E5EE98A /* libPods-OrganizeMe-OrganizeMeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 369B8BABB4CDA3E967C31E8D /* libPods-OrganizeMe-OrganizeMeTests.a */; };
+		A22D5E6B28CA995100E09CE7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A22D5E6A28CA995100E09CE7 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +49,8 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = OrganizeMe/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8EDCED0D6B654909A4A70036 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		9033397EAEECECAF9830FA4E /* Pods-OrganizeMe-OrganizeMeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OrganizeMe-OrganizeMeTests.debug.xcconfig"; path = "Target Support Files/Pods-OrganizeMe-OrganizeMeTests/Pods-OrganizeMe-OrganizeMeTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A22D5E6A28CA995100E09CE7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "/Users/macbookpro2018/Desktop/OrganizeMe/OrganizeMeMobileApp-master/ios/OrganizeMe/GoogleService-Info.plist"; sourceTree = "<absolute>"; };
+		A289BD5828CE890C00BD2FFC /* client_398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "client_398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com.plist"; sourceTree = "<group>"; };
 		C7E25DEE159D72B546BDEC37 /* Pods-OrganizeMe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OrganizeMe.release.xcconfig"; path = "Target Support Files/Pods-OrganizeMe/Pods-OrganizeMe.release.xcconfig"; sourceTree = "<group>"; };
 		C9452A478E3F47358BE36A02 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		CCC9453D138847EDB496F273 /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
@@ -73,7 +75,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				104F8FE9DE122A1302EB3973 /* libPods-OrganizeMe.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +101,8 @@
 		13B07FAE1A68108700A75B9A /* OrganizeMe */ = {
 			isa = PBXGroup;
 			children = (
+				A289BD5828CE890C00BD2FFC /* client_398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com.plist */,
+				A22D5E6A28CA995100E09CE7 /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -228,6 +231,8 @@
 			dependencies = (
 			);
 			name = OrganizeMe;
+			packageProductDependencies = (
+			);
 			productName = OrganizeMe;
 			productReference = 13B07F961A680F5B00A75B9A /* OrganizeMe.app */;
 			productType = "com.apple.product-type.application";
@@ -258,6 +263,9 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+				A28B425328CA870000CAA345 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -273,6 +281,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A22D5E6B28CA995100E09CE7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -536,10 +545,9 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.axsosntech.organizeme;
 				PRODUCT_NAME = OrganizeMe;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -564,7 +572,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.axsosntech.organizeme;
 				PRODUCT_NAME = OrganizeMe;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -672,7 +680,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
@@ -737,6 +745,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A28B425328CA870000CAA345 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }

@@ -87,7 +87,7 @@ const Login = ({ navigation }) => {
             }, (error) => {
                 console.log(error);
                 setButtonTxt("Cancel")
-                setMsg(response.data.message)
+                setMsg("Error")
                 setLoading(false)
                 setOpenAlert(true)
 
