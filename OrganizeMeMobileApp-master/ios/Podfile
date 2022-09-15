@@ -1,12 +1,21 @@
+
+$RNFirebaseAsStaticFramework = true
+
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
 platform :ios, '11.0'
 install! 'cocoapods', :deterministic_uuids => false
 
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCoreInternal', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+$RNFirebaseAsStaticFramework = true
+
 target 'OrganizeMe' do
   config = use_native_modules!
-
+  use_frameworks!
   # Flags change depending on the env values.
   flags = get_default_flags()
 

@@ -203,6 +203,7 @@ const Login = ({ navigation }) => {
             webClientId: '398685992086-d82686o0hs914d2hr00831j5296pvuev.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
             androidClientId: '398685992086-6diqmqvgcjfq630m39ctmp051nk9jnno.apps.googleusercontent.com',
             offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+            iosClientId: '398685992086-1lajf9tj01uii7eorhep53fon56ioqb9.apps.googleusercontent.com'
         });
     }, []);
 

@@ -392,8 +392,6 @@ PODS:
     - FBSDKGamingServicesKit (~> 13.2.0)
     - FBSDKShareKit (~> 13.2.0)
     - React-Core
-  - react-native-fetch-blob (0.10.6):
-    - React-Core
   - react-native-gif (3.1.0):
     - React-Core
     - SDWebImage (~> 5.0)
@@ -600,7 +598,6 @@ DEPENDENCIES:
   - react-native-build-config (from `../node_modules/react-native-build-config`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
-  - react-native-fetch-blob (from `../node_modules/react-native-fetch-blob`)
   - "react-native-gif (from `../node_modules/@lowkey/react-native-gif`)"
   - react-native-image-base64 (from `../node_modules/react-native-image-base64`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
@@ -719,8 +716,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-fbsdk-next:
     :path: "../node_modules/react-native-fbsdk-next"
-  react-native-fetch-blob:
-    :path: "../node_modules/react-native-fetch-blob"
   react-native-gif:
     :path: "../node_modules/@lowkey/react-native-gif"
   react-native-image-base64:
@@ -847,7 +842,6 @@ SPEC CHECKSUMS:
   react-native-build-config: 1130ad8668ca251b65e95e002b5b8f308a96726f
   react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
   react-native-fbsdk-next: 7ab4f307b4c07de8f2f669659b70ff703eb841bd
-  react-native-fetch-blob: 0cbdf9764c75d9438c162427395f4bc35a857d5a
   react-native-gif: 71d42bec3de98ac0bead5b6b074e3025cfb4f799
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
   react-native-image-picker: cffb727cf2f59bd5c0408e30b3dbe0b935f88835
