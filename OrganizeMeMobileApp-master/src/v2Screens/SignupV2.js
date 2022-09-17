@@ -296,7 +296,7 @@ const SignupV2 = ({ navigation }) => {
                         />
                         <Text style={{ marginVertical: 10, marginLeft: 5, fontSize: 12, fontWeight: 'bold', color: "grey"}} >I accept all</Text>
                         <TouchableOpacity onPress={() => setVisible(true)}>
-                            <Text style={{ marginVertical: 10, marginLeft: 5, fontSize: 12, fontWeight: 'bold', color: "grey"}} >terms and conditions</Text>
+                            <Text style={{ marginVertical: 10, marginLeft: 5, fontSize: 12, fontWeight: 'bold', color: "blue"}} >terms and conditions</Text>
                         </TouchableOpacity>
                     </View>
 

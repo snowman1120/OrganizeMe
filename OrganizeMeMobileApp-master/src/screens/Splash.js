@@ -238,13 +238,13 @@ export default class Splash extends Component {
                 {/* <Loader loading={this.state.loading}></Loader> */}
                 <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
                 {/* <Text style={{ fontSize: 26, fontWeight: 'bold', color: Colors.COLOR_BLACK }}>Organize Me</Text> */}
-                {/* <GifImage
-                    source={require('../assets/splash.gif')}
+                <GifImage
+                    source={require('../assets/logoNew.gif')}
                     style={{
                         height: 400,
                         width: 350
                     }}
-                    resizeMode="contain" /> */}
+                    resizeMode="contain" />
                 {/* <VideoPlayer
                     video={{ uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
                     videoWidth={1600}
@@ -253,11 +253,11 @@ export default class Splash extends Component {
                     onVideoEnd={() =>  console.log("vedio end")}
                 /> */}
 
-                <Video source={require('../assets/logo.mp4')}
+                {/* <Video source={require('../assets/logo.mp4')}
                     style={{ height: 200, width: 200, backgroundColor: 'white' }}
                     ref={(ref) => {
                         this.player = ref
-                    }} resizeMode="contain" />
+                    }} resizeMode="contain" /> */}
                 {/* <Image source={require('../assets/splash.gif')} style={{
                         height: 400,
                         width: 350
