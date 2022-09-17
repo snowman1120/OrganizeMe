@@ -90,7 +90,7 @@ const Login = ({ navigation }) => {
             }, (error) => {
                 console.log(error);
                 setButtonTxt("Cancel")
-                setMsg(response.data.message)
+                setMsg("An Error Occured")
                 setLoading(false)
                 setOpenAlert(true)
 
@@ -187,7 +187,7 @@ const Login = ({ navigation }) => {
         }, (error) => {
             console.log(error);
             setButtonTxt("Cancel")
-            setMsg(response.data.message)
+            setMsg("An error occured ")
             setLoading(false)
             setOpenAlert(true)
 

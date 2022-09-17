@@ -4,7 +4,7 @@ export default {
     messenger: require('../assets/messenger.png'),
     messenger_black: require('../assets/messenger_black.png'),
     logo: require('../assets/logo.png'),
-    logoTransparent: require('../assets/logoTransparent.png')
-    
+    logoTransparent: require('../assets/logoTransparent.png'),
+    logoNew : require('../assets/logoNew.gif'),
 }
 
