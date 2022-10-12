@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>398685992086-6epb9hur1qcv83q8ork9idpm40rkpf1d.apps.googleusercontent.com</string>
+	<string>398685992086-keqe5pgqks4vp4851sthpekdu80sfljo.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.398685992086-6epb9hur1qcv83q8ork9idpm40rkpf1d</string>
+	<string>com.googleusercontent.apps.398685992086-keqe5pgqks4vp4851sthpekdu80sfljo</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>398685992086-72mb53k3924t1mhci35li4mlkstsp7js.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.axsosntech.organizeme</string>
+	<string>com.axsosntech.letsgetorganized</string>
 	<key>PROJECT_ID</key>
 	<string>organize-me-dca64</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:398685992086:ios:a19ad20e591aae4a987eb7</string>
+	<string>1:398685992086:ios:2b3c5df07014bb93987eb7</string>
 </dict>
 </plist>
