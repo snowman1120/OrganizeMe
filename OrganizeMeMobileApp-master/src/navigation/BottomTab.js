@@ -64,8 +64,9 @@ const BottomTab = () => {
                 unmountOnBlur: true,
                 tabBarActiveTintColor: Colors.COLOR_THEME,
                 tabBarStyle: {
-                    height: 60,
                     elevation: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center'
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
@@ -82,17 +83,22 @@ const BottomTab = () => {
                 name="CheckList"
                 component={CheckStack}
                 options={{
+
+                    tabBarStyle: {
+                       
+                    },
                     tabBarLabelStyle: {
                         color: 'black',
                         fontSize: 12,
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        
                     },
                     tabBarIcon: ({ tintColor, focused }) => (
                         <View
                             style={{
                                 backgroundColor: focused ? Colors.COLOR_THEME : null,
-                                width: 40,
-                                height: 40,
+                                width: 30,
+                                height: 30,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 elevation: focused ? 2 : 0,
