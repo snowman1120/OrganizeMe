@@ -116,10 +116,13 @@ const CheckList = ({ navigation }) => {
 
     const renderItem = ({ item, index }) => {
         return (
+            
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 {/* <View style={{ alignSelf: 'center', backgroundColor: 'red' }}>
                     <Text>{item.checkListTitle}</Text>
                 </View> */}
+             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
+               
                 <View style={{
                     height: 400,
                     marginTop: 10,
@@ -223,7 +226,7 @@ const CheckList = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading} ></Loader>
-            <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ height: 80, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
                     {/* <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                         <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
