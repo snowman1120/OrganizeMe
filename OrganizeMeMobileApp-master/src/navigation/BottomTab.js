@@ -61,7 +61,7 @@ const BottomTab = () => {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                unmountOnBlur: true,
+                // unmountOnBlur: true,
                 tabBarActiveTintColor: Colors.COLOR_THEME,
                 tabBarStyle: {
                     elevation: 10,

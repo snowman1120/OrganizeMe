@@ -9,7 +9,9 @@ import {name as appName} from './app.json';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/app/store';
 import messaging from '@react-native-firebase/messaging';
+import { LogBox } from "react-native";
 
+LogBox.ignoreLogs(["EventEmitter.removeListener"]);
 // Register background handler
 messaging().setBackgroundMessageHandler(async remoteMessage => {
   // console.log('Message handled in the background!', remoteMessage);

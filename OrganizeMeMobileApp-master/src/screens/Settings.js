@@ -25,14 +25,14 @@ const Settings = ({ navigation }) => {
 
     console.log("user object" + JSON.stringify(Session.userObj.userName));
     const onLogoutClick = () => {
-        dispatch(reset())
+        // dispatch(reset())
         console.log("Logout pressed");
         Session.cleanConversationId()
         Session.cleanUserObj()
         console.log(JSON.stringify(Session.userObj));
         AsyncMemory.storeItem("userObj", null)
         // AsyncMemory.storeItem('isViewed', false)
-        navigation.replace('LoginV2')
+        navigation.navigate('LoginV2')
     }
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }}>
@@ -51,7 +51,7 @@ const Settings = ({ navigation }) => {
             {/* </View> */}
             {/* </View>  */}
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
-            <View style={{ height: 60, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ height: 80, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
                     {/* <TouchableOpacity>
                         <Icon name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
