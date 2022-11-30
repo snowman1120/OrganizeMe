@@ -13,4 +13,9 @@ export default {
   END_POINT_UPDATE_PROFILE: '/api/v1/UpdateProfile',
   CONVERSATION_URL: 'http://154.53.58.235:3000/api/conversations',
   END_POINT_ALL_CONVERSATION_URL: 'http://154.53.58.235:3000/api/messages/',
+  END_POINT_DELETE_USER: '/api/v1/deleteUser',
+  END_POINT_CHECK_USER_LIMIT : '/api/v1/checkUserLimit?userId=',
+  END_POINT_GET_WELCOME_MESSAGE : "/api/v1/getWelcomeMessage?userId="
+
+
 };

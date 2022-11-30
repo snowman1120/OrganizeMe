@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StatusBar,
@@ -17,7 +17,7 @@ import {
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
-import {LoginManager, AccessToken, LoginButton} from 'react-native-fbsdk-next';
+import { LoginManager, AccessToken, LoginButton } from 'react-native-fbsdk-next';
 import Loader from '../utils/loader';
 import Constants from '../http/Constants';
 import Session from '../utils/Session';
@@ -25,12 +25,12 @@ import Http from '../http/Http';
 import Utils from '../utils/Utils';
 import Alerts from '../utils/Alerts';
 import AsyncMemory from '../utils/AsyncMemory';
-import {useAppDispatch, useAppSelector} from '../redux/app/hooks';
-import {incremented, addMsg} from '../redux/slices/chat/chatSlice';
+import { useAppDispatch, useAppSelector } from '../redux/app/hooks';
+import { incremented, addMsg } from '../redux/slices/chat/chatSlice';
 import Video from 'react-native-video';
 import logoVedio from '../assets/logo.mp4';
-
-const Login = ({navigation}) => {
+import { AppleButton } from '@invertase/react-native-apple-authentication'
+const Login = ({ navigation }) => {
   //Auth 2 for google
   //Auth 3 for facebook
 
@@ -101,9 +101,9 @@ const Login = ({navigation}) => {
   const onSocialLoginClick = async (idToken, Id) => {
     console.log(
       ' Id TOKEN === >' +
-        JSON.stringify(idToken) +
-        ' < ======= id ====== >' +
-        Id,
+      JSON.stringify(idToken) +
+      ' < ======= id ====== >' +
+      Id,
     );
     setLoading(true);
 
@@ -118,7 +118,7 @@ const Login = ({navigation}) => {
 
     console.log(
       'session social signin object ==== >' +
-        JSON.stringify(Session.socialSignInObj),
+      JSON.stringify(Session.socialSignInObj),
     );
 
     await Http.post(
@@ -216,7 +216,7 @@ const Login = ({navigation}) => {
       setLoading(true);
       await GoogleSignin.hasPlayServices();
       console.log('Try singin');
-      const {accessToken, idToken} = await GoogleSignin.signIn();
+      const { accessToken, idToken } = await GoogleSignin.signIn();
       console.log('access token === >' + accessToken);
       console.log('id token ==== >' + idToken);
       onSocialLoginClick(idToken, 2);
@@ -270,7 +270,7 @@ const Login = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.COLOR_WHITE}}>
+    <View style={{ flex: 1, backgroundColor: Colors.COLOR_WHITE }}>
       <StatusBar backgroundColor="white"></StatusBar>
       <Loader loading={loading}></Loader>
       <View
@@ -279,14 +279,14 @@ const Login = ({navigation}) => {
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-        <View style={{marginTop: 20}}>
+        <View style={{ marginTop: 20 }}>
           <Text style={TextStyle.Styles.TEXT_STYLE_DEFAULT_BOLD}>
             Get Organized
           </Text>
         </View>
         <Video
           source={logoVedio}
-          style={{height: 200, width: 200, backgroundColor: 'white'}}
+          style={{ height: 200, width: 200, backgroundColor: 'white' }}
           ref={videoRef}
         />
         <View
@@ -300,7 +300,7 @@ const Login = ({navigation}) => {
         </View>
       </View>
 
-      <View style={{flex: 0.6, justifyContent: 'space-evenly'}}>
+      <View style={{ flex: 0.6, justifyContent: 'space-evenly' }}>
         <View
           style={{
             height: 50,
@@ -312,18 +312,18 @@ const Login = ({navigation}) => {
             alignSelf: 'center',
             borderRadius: 20,
           }}>
-          <Icon name="user" size={20} style={{marginLeft: 15}} />
+          <Icon name="user" size={20} style={{ marginLeft: 15 }} />
           <TextInput
             onChangeText={Value => setEmail(Value)}
             onSubmitEditing={() => {
               pasRef.current.focus();
             }}
             placeholder=""
-            style={{width: 230, marginLeft: 10}}
+            style={{ width: 230, marginLeft: 10 }}
           />
         </View>
 
-        <View style={{width: '80%', alignSelf: 'center'}}>
+        <View style={{ width: '80%', alignSelf: 'center' }}>
           <View
             style={{
               height: 50,
@@ -335,19 +335,19 @@ const Login = ({navigation}) => {
               alignSelf: 'center',
               borderRadius: 20,
             }}>
-            <Icon name="lock" size={20} style={{marginLeft: 15}} />
+            <Icon name="lock" size={20} style={{ marginLeft: 15 }} />
             <TextInput
               secureTextEntry
               onChangeText={Value => setPass(Value)}
               ref={pasRef}
               placeholder="Password"
-              style={{width: 230, marginLeft: 10}}
+              style={{ width: 230, marginLeft: 10 }}
             />
           </View>
           <Text
             style={
               (TextStyle.Styles.TEXT_STYLE_DEFAULT,
-              {alignSelf: 'flex-end', marginRight: 20, marginTop: 10})
+                { alignSelf: 'flex-end', marginRight: 20, marginTop: 10 })
             }>
             Forgot Password?
           </Text>
@@ -364,18 +364,18 @@ const Login = ({navigation}) => {
             alignSelf: 'center',
             marginTop: 20,
           }}>
-          <Text style={{color: 'white', fontWeight: 'bold'}}>LOG IN</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>LOG IN</Text>
         </TouchableOpacity>
 
         <View>
           <Text
             style={
-              (TextStyle.Styles.TEXT_STYLE_DEFAULT, {alignSelf: 'center'})
+              (TextStyle.Styles.TEXT_STYLE_DEFAULT, { alignSelf: 'center' })
             }>
             Or connect using
           </Text>
 
-          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
             {/* <LoginButton
                             style={{ height: 50, width: 180, marginTop: 20 }}
                             onLoginFinished={
@@ -413,13 +413,25 @@ const Login = ({navigation}) => {
               <Icon
                 name="facebook"
                 size={20}
-                style={{marginHorizontal: 5}}
+                style={{ marginHorizontal: 5 }}
                 color="blue"
               />
-              <Text style={{color: Colors.COLOR_BLACK, fontWeight: 'bold'}}>
+              <Text style={{ color: Colors.COLOR_BLACK, fontWeight: 'bold' }}>
                 Facebook
               </Text>
             </TouchableOpacity>
+            <View>
+              <AppleButton
+                buttonStyle={AppleButton.Style.WHITE}
+                buttonType={AppleButton.Type.SIGN_IN}
+                style={{
+                  width: 160, // You must specify a width
+                  height: 45, // You must specify a height
+                }}
+                onPress={() => onAppleButtonPress()}
+              />
+            </View>
+
             <TouchableOpacity
               onPress={() => _signIn()}
               style={{
@@ -437,10 +449,10 @@ const Login = ({navigation}) => {
               <Icon
                 name="google"
                 size={20}
-                style={{marginHorizontal: 5}}
+                style={{ marginHorizontal: 5 }}
                 color="red"
               />
-              <Text style={{color: Colors.COLOR_BLACK, fontWeight: 'bold'}}>
+              <Text style={{ color: Colors.COLOR_BLACK, fontWeight: 'bold' }}>
                 Google
               </Text>
             </TouchableOpacity>
@@ -459,7 +471,7 @@ const Login = ({navigation}) => {
             alignSelf: 'center',
           }}
           onPress={() => navigation.navigate('SignUp')}>
-          <Text style={{alignSelf: 'center', marginTop: 10}}>
+          <Text style={{ alignSelf: 'center', marginTop: 10 }}>
             Don't have an account?
           </Text>
           <Text

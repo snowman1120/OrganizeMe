@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,9 +18,35 @@ import Session from '../utils/Session';
 import Http from '../http/Http';
 import Constants from '../http/Constants';
 import AsyncMemory from '../utils/AsyncMemory';
+import {
+  requestSubscription,
+  finishTransaction,
+  purchaseErrorListener,
+  purchaseUpdatedListener,
+  getSubscriptions,
+  initConnection,
+  validateReceiptIos,
+  getReceiptIOS,
+  withIAPContext,
+  purchaseUpdateSubscription,
+  purchaseErrorSubscription,
+  completePurchase
+} from "react-native-iap";
+import Alerts from '../utils/Alerts';
+const IAPSKU = Platform.select({
+  android: ["com.organizeme.iap.oneyear", "com.organizeme.iap.onemonth", "com.organizeme.iap.oneyearvip"],
+  ios: []
+})
 
-const Package = ({navigation}) => {
+
+
+const Package = ({ navigation }) => {
+  const [productList, setProductList] = useState([]);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [buttonTxt, setButtonTxt] = useState('Ok');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   let arr = Session.companyPackages;
   console.log('arrr === >' + JSON.stringify(arr));
@@ -28,7 +54,95 @@ const Package = ({navigation}) => {
   useEffect(() => {
     onConversation();
     loadPackages();
+    loadIAPListeners();
+    getProductList()
   }, []);
+
+  const confirmPress = () => {
+    console.log('Confirm Button Pressed');
+    setSuccess(true)
+    navigation.navigate('Settings')
+  };
+
+
+  const handleSubscription = async (plan) => {
+    console.log("sessionn user pacakge obj before === >" + JSON.stringify(Session.userPackage));
+    Session.cleanUserPackage()
+    console.log("sessionn user pacakge obj after === >" + JSON.stringify(Session.userPackage));
+    console.log(plan.AndroidSubscriptionId);
+    try {
+      console.log("inside try");
+      // toggleProcessing(true);
+      console.warn(plan.AndroidSubscriptionId);
+      console.log("requrest subscription");
+      await requestSubscription(plan.AndroidSubscriptionId, false);
+      Session.userPackage.packageId = plan.AndroidSubscriptionId
+      console.log("sessionn user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
+    } catch (err) {
+
+      console.log("err-->", err);
+      console.log(" ======================" + msg + success);
+      navigation.navigate('Settings')
+      // toggleProcessing(false);
+    }
+  };
+
+  const loadIAPListeners = async () => {
+    if (purchaseUpdateSubscription) {
+      purchaseUpdateSubscription.remove();
+    }
+    if (purchaseErrorSubscription) {
+      purchaseErrorSubscription.remove();
+    }
+    await initConnection(); // important, or else it won't trigger before a random state change
+    purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
+      console.log("purchased", JSON.stringify(purchase));
+      console.log("productId", purchase.productId);
+      let receipt = purchase.transactionReceipt;
+      if (receipt) {
+        console.log("inside reciept if");
+        await finishTransaction(purchase, false);
+        console.log("after finish transaction");
+        // completePurchase(purchase, () => {
+        //   console.log("inside complete purchase");
+        //   const tm = setTimeout(() => {
+        //     console.log("go back->");
+        //     navigation.goBack();
+        //     clearTimeout(tm);
+        //   }, 500);
+        // });
+        console.log("before receipt");
+        console.log("receipt->", receipt);
+        onBuyNowClick(purchase.transactionReceipt,)
+
+      }
+    });
+    purchaseErrorSubscription = purchaseErrorListener((error) => {
+      alert("error occured !")
+    });
+  };
+
+  const getProductList = async () => {
+    console.log("init connection ");
+    const con = await initConnection();
+    console.log("after connection and connection status is ==== >" + con);
+    try {
+      console.log("insdie try");
+      console.log("Before Get Subscriptions");
+      const list = await getSubscriptions(IAPSKU);
+      setProductList(list)
+      console.log("After Get Subscriptions");
+      console.log("list of Subscriptions-->" + JSON.stringify(list));
+      setLoading(false);
+      setProductList(list);
+    } catch (error) {
+      alert(error);
+      console.log("error product list", error);
+      setLoading(false);
+    }
+  };
+
+
 
   const onConversation = async () => {
     Session.conversation.senderId = Session.userObj.userId;
@@ -71,15 +185,11 @@ const Package = ({navigation}) => {
     }
   };
 
-  const onBuyNowClick = async data => {
-    setLoading(true);
+  const onBuyNowClick = async (data) => {
     Session.userPackage.userId = Session.userObj.userId;
-    Session.userPackage.packageId = data.PackageId;
-
-    console.log('user package id ' + JSON.stringify(Session.userObj));
-
-    console.log('user package id ' + JSON.stringify(Session.userPackage));
-
+    Session.userPackage.purchasedObject = data
+    console.log(Session.userPackage);
+    setLoading(true);
     await Http.post(
       Constants.END_POINT_UPDATE_USER_PACKAGE,
       Session.userPackage,
@@ -94,7 +204,7 @@ const Package = ({navigation}) => {
             navigation.replace('BottomTab');
             console.log(
               'session user object after update === >' +
-                JSON.stringify(Session.userObj),
+              JSON.stringify(Session.userObj),
             );
           } else {
             console.log('user object is null');
@@ -105,6 +215,7 @@ const Package = ({navigation}) => {
       error => {
         setLoading(false);
         console.log(error);
+        alert(error)
       },
     );
   };
@@ -148,7 +259,7 @@ const Package = ({navigation}) => {
               }}></View>
 
             <TouchableOpacity
-              onPress={() => onBuyNowClick(data)}
+              onPress={() => handleSubscription(data)}
               style={{
                 height: 50,
                 width: 150,
@@ -166,7 +277,7 @@ const Package = ({navigation}) => {
                   fontWeight: 'bold',
                   color: Colors.COLOR_BLACK,
                 }}>
-                Buy Now
+                Update
               </Text>
             </TouchableOpacity>
           </View>
@@ -199,6 +310,7 @@ const Package = ({navigation}) => {
                 style={{
                   marginLeft: 10,
                   fontSize: FontSize.FONT_SIZE_18,
+                  color: "black"
                 }}>
                 {data}
               </Text>
@@ -271,9 +383,12 @@ const Package = ({navigation}) => {
         flex: 1,
         backgroundColor: Colors.COLOR_WHITE,
       }}>
-      <StatusBar backgroundColor="white"></StatusBar>
+      <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
       <Loader loading={loading}></Loader>
-      <View style={{alignSelf: 'center'}}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20, marginLeft: 20 }}>
+        <Icon name='arrow-left' size={20} color={"black"} />
+      </TouchableOpacity>
+      <View style={{ alignSelf: 'center' }}>
         <Text style={TextStyle.Styles.PACKAGE_STYLE}> Price Plans</Text>
       </View>
 
@@ -438,8 +553,16 @@ const Package = ({navigation}) => {
                     </View>
                 </View> */}
       </Swiper>
+
+      <Alerts
+        showAlert={openAlert}
+        buttonTxt={buttonTxt}
+        msg={msg}
+        onConfirmPressed={() => confirmPress()}></Alerts>
     </View>
   );
 };
 
 export default Package;
+
+

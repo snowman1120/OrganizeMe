@@ -20,6 +20,11 @@ const WebViewCheckList = ({ navigation, route }) => {
     });
     return (
         <View style={{ flex: 1 }}>
+            <View style={{ width: "100%", backgroundColor: 'white', elevation: 10 }}>
+                <TouchableOpacity onPress={() => navigation.navigate('CheckList')} style={{ height: 40, width: 40, justifyContent: 'center', alignItems: 'center', marginTop: 25, marginLeft: 10 }}>
+                    <Icon name='arrow-left' size={20} />
+                </TouchableOpacity>
+            </View>
             <WebView source={{ uri: data.item.checkListUrl }} />
         </View>
     )

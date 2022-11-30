@@ -1199,6 +1199,11 @@
   "resolved" "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   "version" "1.2.1"
 
+"@invertase/react-native-apple-authentication@^2.2.2":
+  "integrity" "sha512-uNZcUn9WbAQP5zSOFXI1+kEUokLwZG9imUulFdt5t22CU2ozGq6zyPm+BAVVg8D5eUUXduX/dJFhbuOpJxiEhQ=="
+  "resolved" "https://registry.npmjs.org/@invertase/react-native-apple-authentication/-/react-native-apple-authentication-2.2.2.tgz"
+  "version" "2.2.2"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   "integrity" "sha512-VjeHSlIzpv/NyD3N0YuHfXOPDIixcA1q2ZV98wsMqcYlPmv2n3Yb2lYP9XMElnaFVXg5A7YLTeLu6V84uQDjmQ=="
   "resolved" "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
@@ -3351,6 +3356,11 @@
     "dom-serializer" "^1.0.1"
     "domelementtype" "^2.2.0"
     "domhandler" "^4.2.0"
+
+"dooboolab-welcome@^1.2.0":
+  "integrity" "sha512-2NbMaIIURElxEf/UAoVUFlXrO+7n/FRhLCiQlk4fkbGRh9cJ3/f8VEMPveR9m4Ug2l2Zey+UCXjd6EcBqHJ5bw=="
+  "resolved" "https://registry.npmjs.org/dooboolab-welcome/-/dooboolab-welcome-1.3.2.tgz"
+  "version" "1.3.2"
 
 "ee-first@1.1.1":
   "integrity" "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
@@ -6893,6 +6903,13 @@
   "resolved" "https://registry.npmjs.org/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.6.tgz"
   "version" "0.0.6"
 
+"react-native-iap@5.0.0":
+  "integrity" "sha512-I+xK/5RKtK2UFoXgofBV4soE39pgDHWZeiVSG7M1wI0acNT91RXHyuw4mnuAfXvijUS/AMyDIcEF6ZHTKWcaKw=="
+  "resolved" "https://registry.npmjs.org/react-native-iap/-/react-native-iap-5.0.0.tgz"
+  "version" "5.0.0"
+  dependencies:
+    "dooboolab-welcome" "^1.2.0"
+
 "react-native-image-base64@^0.1.4":
   "integrity" "sha512-WLdzwHdXFRLS9VStG1CG46+t+fcInjVWxKd1+AATElBhaAS3zwDHz7mYIZS1OX4VMuNClwl5G8dowuqUJ9aMGQ=="
   "resolved" "https://registry.npmjs.org/react-native-image-base64/-/react-native-image-base64-0.1.4.tgz"
@@ -6975,8 +6992,10 @@
 "react-native-safe-area-context@^4.2.5", "react-native-safe-area-context@>= 3.0.0":
   "version" "4.2.5"
 
-"react-native-screens@^3.13.1", "react-native-screens@>= 3.0.0":
-  "version" "3.13.1"
+"react-native-screens@^3.14.0", "react-native-screens@>= 3.0.0":
+  "integrity" "sha512-ANUEuvMUlsYJ1QKukEhzhfrvOUO9BVH9Nzg+6eWxpn3cfD/O83yPBOF8Mx6x5H/2+sMy+VS5x/chWOOo/U7QJw=="
+  "resolved" "https://registry.npmjs.org/react-native-screens/-/react-native-screens-3.18.2.tgz"
+  "version" "3.18.2"
   dependencies:
     "react-freeze" "^1.0.0"
     "warn-once" "^0.1.0"
@@ -7032,12 +7051,14 @@
   "resolved" "https://registry.npmjs.org/react-native-version-info/-/react-native-version-info-1.1.1.tgz"
   "version" "1.1.1"
 
-"react-native-video@^5.2.0":
-  "version" "5.2.0"
+"react-native-video@^4.4.4":
+  "integrity" "sha512-jm1Yf1S3ZqrsbUo+3v9nUaQz/eD4kytzkm8jfDEvKzg/EEzci1EzjLSZqQcNtyLg1fvfkyRbvvzUYhS2SjdKPA=="
+  "resolved" "https://registry.npmjs.org/react-native-video/-/react-native-video-4.4.5.tgz"
+  "version" "4.4.5"
   dependencies:
     "keymirror" "^0.1.1"
-    "prop-types" "^15.7.2"
-    "shaka-player" "^2.5.9"
+    "prop-types" "^15.5.10"
+    "shaka-player" "^2.4.4"
 
 "react-native-web@*", "react-native-web@0.9.x":
   "integrity" "sha512-P1nCvBVFrv3J5BXu39iS4A3fR7m0vtGaCAy4MigAtZpakIuara/98h516fDQajPqoVy2T4cQgYZUQAr+FBnppQ=="
@@ -7061,7 +7082,7 @@
     "escape-string-regexp" "2.0.0"
     "invariant" "2.2.4"
 
-"react-native@*", "react-native@^*", "react-native@>= 0.60.2", "react-native@>=0.20.0", "react-native@>=0.42.0", "react-native@>=0.47.1", "react-native@>=0.50.0", "react-native@>=0.55.0", "react-native@>=0.59", "react-native@>=0.63.3", "react-native@>=0.65.0", "react-native@0.68.1":
+"react-native@*", "react-native@^*", "react-native@>= 0.60.2", "react-native@>=0.20.0", "react-native@>=0.42.0", "react-native@>=0.47.1", "react-native@>=0.50.0", "react-native@>=0.54", "react-native@>=0.55.0", "react-native@>=0.59", "react-native@>=0.63.3", "react-native@>=0.65.0", "react-native@0.68.1":
   "integrity" "sha512-5gfvslo5NO2Ece2k/q41eVOK3ca4u1QAOf+qM+auvOiUA4/QR5Yr0WfSGbRpUr2GaFgv7qP11F4+elCravg7uQ=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.68.1.tgz"
   "version" "0.68.1"
@@ -7579,7 +7600,7 @@
   "resolved" "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz"
   "version" "1.2.0"
 
-"shaka-player@^2.5.9":
+"shaka-player@^2.4.4":
   "integrity" "sha512-3MC9k0OXJGw8AZ4n/ZNCZS2yDxx+3as5KgH6Tx4Q5TRboTBBCu6dYPI5vp1DxKeyU12MBN1Zcbs7AKzXv2EnCg=="
   "resolved" "https://registry.npmjs.org/shaka-player/-/shaka-player-2.5.23.tgz"
   "version" "2.5.23"

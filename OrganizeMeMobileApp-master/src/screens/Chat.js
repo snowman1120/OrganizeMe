@@ -29,6 +29,7 @@ import Http from '../http/Http'
 import Modal from 'react-native-modal'
 import AsyncMemory from '../utils/AsyncMemory'
 import Firebase from '../firebase/Firebase'
+import Alerts from '../utils/Alerts'
 
 //const socket = useRef(io(SERVER));
 
@@ -58,7 +59,10 @@ const Chat = ({ navigation }) => {
     const dispatch = useAppDispatch()
 
 
-
+    const [openAlert, setOpenAlert] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [buttonTxt, setButtonTxt] = useState('Ok');
+    const [alertSuccess, setAlertSuccess] = useState(false);
     const useRedux = (message) => {
         // dispatch(addMsg(message))
 
@@ -330,66 +334,189 @@ const Chat = ({ navigation }) => {
 
     }
 
+    const getFirstWelcomeMsg = async () => {
+        console.log("get first msg");
+        await Http.get(Constants.END_POINT_GET_WELCOME_MESSAGE + Session.userObj.userId).then((response) => {
+            console.log(response.data)
+            if (response.data.success) {
+                console.log("set msg");
+                m = [
+                    {
+                        _id: uuid.v4(),
+                        text: response.data.data[0].message,
+                        createdAt: new Date(),
+                        user: {
+                            conversationId: Session.conversationId,
+                            _id: docObject.userId,
+                            name: docObject.userName,
+                            avatar: docObject.imgUrl,
+                        },
+                        // image:'http://194.233.69.219/general/doctor.jpg'
+                    },
+                ]
+
+                // setMessages(m)
+                setMessages(previousMessages => GiftedChat.append(previousMessages, m))
+            }
+        })
+    }
+
+    const userLimit = async () => {
+        console.log("inside userlimit method");
+        console.log(Session.userObj.userId);
+        setLoading(true)
+        await Http.get(Constants.END_POINT_CHECK_USER_LIMIT + Session.userObj.userId).then((response) => {
+            console.log("after get request method");
+            setLoading(false)
+            console.log("response limit data === > " + JSON.stringify(response.data));
+            if (response.data.success) {
+                console.log("true");
+                setSuccess(true)
+                if (response.data.data[0].showChat == "Y") {
+                    setOn(true)
+                    onConversation()
+                    getDocObject()
+                    Firebase()
+                    getFirstWelcomeMsg()
+                    socket.on('connect', () => {
+                        console.log("I'm connected with the back-end");
+                    });
+                    socket.emit("addUser", Session.userObj.userId);
+
+                    socket.on('welcomeMessage', msg => {
+
+
+                        console.log("Doc Objec " + docObject.userId);
+
+                        console.log("Inside iffff");
+                        m = [
+                            {
+                                _id: uuid.v4(),
+                                text: msg,
+                                createdAt: new Date(),
+                                user: {
+                                    conversationId: Session.conversationId,
+                                    _id: docObject.userId,
+                                    name: docObject.userName,
+                                    avatar: docObject.imgUrl,
+                                },
+                                // image:'http://194.233.69.219/general/doctor.jpg'
+                            },
+                        ]
+
+                        // setMessages(m)
+                        setMessages(previousMessages => GiftedChat.append(previousMessages, m))
+                        // useRedux(m)
+                    });
+                    socket.on('chatmessage', msg => {
+                        console.log("chatmessage:" + msg);
+                    });
+                    socket.on('clientMessage', msg => {
+                        console.log("Recieving message");
+                        console.log("msgg == >" + JSON.stringify(msg));
+                        onReceive([
+                            {
+                                _id: uuid.v4(),
+                                text: msg,
+                                createdAt: new Date(),
+                                user: {
+                                    conversationId: Session.conversationId,
+                                    _id: docObject.userId,
+                                    name: docObject.userName,
+                                    avatar: docObject.imgUrl,
+                                },
+                            },
+                        ])
+
+                    });
+                }
+                else {
+                    setOn(false)
+                }
+            }
+            else {
+                setSuccess(false)
+                setMsg(response.data.message)
+                setOpenAlert(true)
+            }
+        }, (error) => {
+            console.log("error ==>" + error);
+        })
+    }
+
+    const [success, setSuccess] = useState()
+    const [on, setOn] = useState()
+
+
+    const confirmPress = () => {
+        if (!success) {
+            navigation.navigate("Settings")
+        }
+
+    };
+
+    const cancelPress = () => {
+        navigation.navigate("Settings")
+    }
+
     useEffect(() => {
-        onConversation()
-        getDocObject()
-        Firebase()
+        console.log("user limit ======== >");
+        userLimit()
+        console.log("After user limit ======== >");
+        // onConversation()
+        // getDocObject()
+        // Firebase()
+        // socket.on('connect', () => {
+        //     console.log("I'm connected with the back-end");
+        // });
+        // socket.emit("addUser", Session.userObj.userId);
+
+        // socket.on('welcomeMessage', msg => {
 
 
+        //     console.log("Doc Objec " + docObject.userId);
 
+        //     console.log("Inside iffff");
+        //     m = [
+        //         {
+        //             _id: uuid.v4(),
+        //             text: msg,
+        //             createdAt: new Date(),
+        //             user: {
+        //                 conversationId: Session.conversationId,
+        //                 _id: docObject.userId,
+        //                 name: docObject.userName,
+        //                 avatar: docObject.imgUrl,
+        //             },
+        //             // image:'http://194.233.69.219/general/doctor.jpg'
+        //         },
+        //     ]
 
-        socket.on('connect', () => {
-            console.log("I'm connected with the back-end");
-        });
-        socket.emit("addUser", Session.userObj.userId);
+        //     // setMessages(m)
+        //     setMessages(previousMessages => GiftedChat.append(previousMessages, m))
+        //     // useRedux(m)
+        // });
+        // socket.on('chatmessage', msg => {
+        //     console.log("chatmessage:" + msg);
+        // });
+        // socket.on('clientMessage', msg => {
+        //     console.log("Recieving message");
+        //     console.log("msgg == >" + JSON.stringify(msg));
+        //     onReceive([
+        //         {
+        //             _id: uuid.v4(),
+        //             text: msg,
+        //             createdAt: new Date(),
+        //             user: {
+        //                 conversationId: Session.conversationId,
+        //                 _id: docObject.userId,
+        //                 name: docObject.userName,
+        //                 avatar: docObject.imgUrl,
+        //             },
+        //         },
+        //     ])
 
-        socket.on('welcomeMessage', msg => {
-
-
-            console.log("Doc Objec " + docObject.userId);
-
-            console.log("Inside iffff");
-            m = [
-                {
-                    _id: uuid.v4(),
-                    text: msg,
-                    createdAt: new Date(),
-                    user: {
-                        conversationId: Session.conversationId,
-                        _id: docObject.userId,
-                        name: docObject.userName,
-                        avatar: docObject.imgUrl,
-                    },
-                    // image:'http://194.233.69.219/general/doctor.jpg'
-                },
-            ]
-
-            // setMessages(m)
-            setMessages(previousMessages => GiftedChat.append(previousMessages, m))
-            // useRedux(m)
-        });
-        socket.on('chatmessage', msg => {
-            console.log("chatmessage:" + msg);
-        });
-        socket.on('clientMessage', msg => {
-            console.log("Recieving message");
-            console.log("msgg == >" + JSON.stringify(msg));
-            onReceive([
-                {
-                    _id: uuid.v4(),
-                    text: msg,
-                    createdAt: new Date(),
-                    user: {
-                        conversationId: Session.conversationId,
-                        _id: docObject.userId,
-                        name: docObject.userName,
-                        avatar: docObject.imgUrl,
-                    },
-                },
-            ])
-
-        });
-
+        // });
 
     }, [])
 
@@ -766,8 +893,8 @@ const Chat = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading}></Loader>
-            <View style={{ height: 80, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
+            <View style={{ width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between', marginVertical: 10 }}>
                     {/* <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                         <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
                     </TouchableOpacity> */}
@@ -838,7 +965,11 @@ const Chat = ({ navigation }) => {
                     <Icon name='close' size={30} onPress={() => setVisible(false)} style={{ position: 'absolute', top: 20, right: 20 }} />
                 </View>
             </Modal>
-
+            <Alerts
+                showAlert={openAlert}
+                buttonTxt={buttonTxt}
+                msg={msg}
+                onConfirmPressed={() => confirmPress()}></Alerts>
 
         </View>
 

@@ -27,7 +27,8 @@ export default {
             color: Colors.COLOR_WHITE,
             fontWeight: 'bold',
             marginTop: 10,
-            marginLeft: 20
+            marginLeft: 20,
+            
         },
 
     })

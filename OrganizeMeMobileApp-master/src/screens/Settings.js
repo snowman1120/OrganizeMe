@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Switch, StatusBar } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import Icons from 'react-native-vector-icons/Feather'
 import Colors from '../theme/Colors'
 import FontSize from '../theme/FontSize'
 import TextStyle from '../theme/TextStyle'
@@ -12,6 +13,11 @@ import AsyncMemory from '../utils/AsyncMemory'
 import Session from '../utils/Session'
 import { useAppDispatch, useAppSelector } from '../redux/app/hooks'
 import { reset } from '../redux/slices/chat/chatSlice'
+import Constants from '../http/Constants'
+import utils from 'react-native-axios/lib/utils'
+import Alerts from '../utils/Alerts'
+import Http from '../http/Http'
+
 
 const ScreenWidth = Dimensions.get('window').width
 
@@ -19,11 +25,17 @@ const ScreenWidth = Dimensions.get('window').width
 const Settings = ({ navigation }) => {
 
 
+    console.log("user object == >" + JSON.stringify(Session.userObj));
+
     const value = useAppSelector((State) => State.chat.value)
     const dispatch = useAppDispatch()
+    const [openAlert, setOpenAlert] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [buttonTxt, setButtonTxt] = useState('Ok');
+    const [loading, setLoading] = useState(false);
 
 
-    console.log("user object" + JSON.stringify(Session.userObj.userName));
+    console.log("user object" + JSON.stringify(Session.userObj));
     const onLogoutClick = () => {
         // dispatch(reset())
         console.log("Logout pressed");
@@ -34,6 +46,34 @@ const Settings = ({ navigation }) => {
         // AsyncMemory.storeItem('isViewed', false)
         navigation.navigate('LoginV2')
     }
+
+    const onDeleteUserClick = () => {
+
+        setOpenAlert(true)
+        setMsg("Are you sure you want to delete this account? This will permanently delete your account and all data associated with it.")
+    }
+    const onConfirmPress = async () => {
+
+        setOpenAlert(false)
+        var obj = {
+            userId: Session.userObj.userId
+        }
+        await Http.post(Constants.END_POINT_DELETE_USER, obj
+        ).then(response => {
+            setLoading(false);
+            console.log(response.data);
+            if (response.data.code == "200") {
+                Session.cleanConversationId()
+                Session.cleanUserObj()
+
+                AsyncMemory.storeItem("userObj", null)
+                // AsyncMemory.storeItem('isViewed', false)
+                navigation.navigate('LoginV2')
+            }
+
+        })
+    }
+
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }}>
             {/* <View style={{ height: 140, width: ScreenWidth, backgroundColor: Colors.COLOR_THEME }}>
@@ -51,8 +91,8 @@ const Settings = ({ navigation }) => {
             {/* </View> */}
             {/* </View>  */}
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
-            <View style={{ height: 80, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
+            <View style={{ width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
+                <View style={{ marginVertical: 10, flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
                     {/* <TouchableOpacity>
                         <Icon name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
                     </TouchableOpacity> */}
@@ -70,10 +110,10 @@ const Settings = ({ navigation }) => {
 
             <Text style={{
                 marginHorizontal: 20,
-                marginTop: 40,
                 fontSize: 16,
                 color: Colors.COLOR_BLACK,
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                marginTop: 10
             }}>Accounts</Text>
 
 
@@ -118,7 +158,7 @@ const Settings = ({ navigation }) => {
                     alignItems: 'center'
                 }}>
                     {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='user' size={25} style={{ marginLeft: 10 }} />
+                    <Icon name='user' size={25} style={{ marginLeft: 10 }} color={"black"} />
                     <TouchableOpacity
                         onPress={() => navigation.navigate('Profile')}
                         style={{
@@ -151,7 +191,7 @@ const Settings = ({ navigation }) => {
                     alignItems: 'center'
                 }}>
                     {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='sign-out-alt' size={25} style={{ marginLeft: 10 }} />
+                    <Icon name='sign-out-alt' size={25} style={{ marginLeft: 10 }} color={"black"} />
                     <TouchableOpacity
                         onPress={() => onLogoutClick()}
                         style={{
@@ -170,30 +210,6 @@ const Settings = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-            </View>
-
-
-            <Text style={{
-                marginHorizontal: 20,
-                marginTop: 20,
-                fontSize: 16,
-                color: Colors.COLOR_BLACK,
-                fontWeight: 'bold'
-            }}>Misc</Text>
-
-
-            <View style={{
-                height: 120,
-                width: ScreenWidth - 30,
-                elevation: 10,
-                backgroundColor: 'white',
-                alignSelf: "center",
-                borderRadius: 20,
-                marginTop: 20,
-                justifyContent: 'space-evenly',
-                marginBottom: 35
-            }}>
-
 
                 <View style={{
                     flexDirection: 'row',
@@ -201,7 +217,56 @@ const Settings = ({ navigation }) => {
                     alignItems: 'center'
                 }}>
                     {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='file' size={25} style={{ marginLeft: 10 }} />
+                    <Icons name='trash' size={25} style={{ marginLeft: 10 }} color={"black"} />
+                    <TouchableOpacity
+                        onPress={() => onDeleteUserClick()}
+                        style={{
+                            height: 60,
+                            width: "88%",
+                            borderColor: Colors.COLOR_BLACK,
+                            justifyContent: 'center',
+
+                        }}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK
+                        }}>Delete Account</Text>
+
+
+                    </TouchableOpacity>
+                </View>
+
+            </View>
+
+
+            <Text style={{
+                marginHorizontal: 20,
+                marginTop: 10,
+                fontSize: 16,
+                color: Colors.COLOR_BLACK,
+                fontWeight: 'bold'
+            }}>Misc</Text>
+
+
+            <View style={{
+                width: ScreenWidth - 30,
+                elevation: 10,
+                backgroundColor: 'white',
+                alignSelf: "center",
+                borderRadius: 20,
+                marginTop: 20,
+                justifyContent: 'space-evenly',
+            }}>
+
+
+                <View style={{
+                    marginTop: 5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
+                    <Icon name='file' size={25} style={{ marginLeft: 10 }} color={"black"} />
                     <TouchableOpacity style={{
                         height: 60,
                         width: "88%",
@@ -220,18 +285,19 @@ const Settings = ({ navigation }) => {
                 </View>
 
                 <View style={{
+                    marginTop: 5,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+
                 }}>
                     {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
-                    <Icon name='file' size={25} style={{ marginLeft: 10 }} />
+                    <Icon name='file' size={25} style={{ marginLeft: 10 }} color={"black"} />
                     <TouchableOpacity style={{
                         height: 60,
                         width: "88%",
                         borderColor: Colors.COLOR_BLACK,
                         justifyContent: 'center',
-
                     }}
                         onPress={() => navigation.navigate('WebViews', Session.companySettings.termsText)}
 
@@ -242,16 +308,131 @@ const Settings = ({ navigation }) => {
                         }}>Term of Conditions</Text>
                     </TouchableOpacity>
                 </View>
+            </View>
+
+            <Text style={{
+                marginHorizontal: 20,
+                marginTop: 10,
+                fontSize: 16,
+                color: Colors.COLOR_BLACK,
+                fontWeight: 'bold'
+            }}>Subscriptions</Text>
 
 
+            <View style={{
+                width: ScreenWidth - 30,
+                elevation: 10,
+                backgroundColor: 'white',
+                alignSelf: "center",
+                borderRadius: 20,
+                marginTop: 20,
+                justifyContent: 'space-evenly',
+                marginBottom: 35,
+            }}>
+                <View style={{
+                    marginTop: 5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 5,
+                    display: Session.userObj.packageId == "" ? 'flex' : 'none'
 
+                }}>
+                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
+                    <Icon name='file' size={25} style={{ marginLeft: 10 }} color={"black"} />
+                    <TouchableOpacity style={{
+                        height: 60,
+                        width: "88%",
+                        borderColor: Colors.COLOR_BLACK,
+                        justifyContent: 'center',
+
+                    }}
+                        onPress={() => navigation.navigate('Package')}
+
+                    >
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK
+                        }}>Buy Subscriptions</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{
+                    marginTop: 5,
+                    marginBottom: 5,
+                    display: Session.userObj.packageId == "" ? 'none' : 'flex'
+
+                }}>
+                    {/* <Image source={AppImages.noti} style={{ height: 20, width: 20, marginLeft: 10 }} resizeMode="contain" /> */}
+                    {/* <Icon name='file' size={25} style={{ marginLeft: 10 }} /> */}
+                    <TouchableOpacity disabled style={{
+                        height: 60,
+                        width: "88%",
+                        borderColor: Colors.COLOR_BLACK,
+                        justifyContent: 'space-between',
+                        marginLeft: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                    }}
+                    >
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK
+                        }}>Subscription Name</Text>
+
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK,
+                            fontWeight : 'bold'
+                        }}>{Session.userObj.packageName}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity disabled style={{
+                        height: 60,
+                        width: "88%",
+                        borderColor: Colors.COLOR_BLACK,
+                        justifyContent: 'space-between',
+                        marginLeft: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                    }}
+                    >
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK
+                        }}>Activation Date</Text>
+
+                        <Text style={{
+                            fontSize: 14,
+                            color: Colors.COLOR_BLACK
+                        }}>{Session.userObj.subscriptionDate}</Text>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate("Package")}
+                        style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10, backgroundColor: Colors.COLOR_THEME, alignSelf: 'center', borderRadius: 20 }}>
+                        <Text style={{
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            color: "white",
+                            marginHorizontal: 20,
+                            marginVertical: 10
+                        }}>Upgrade Subscription</Text>
+                    </TouchableOpacity>
+
+                </View>
             </View>
 
 
 
 
 
-
+            <Alerts
+                showAlert={openAlert}
+                buttonTxt={buttonTxt}
+                msg={msg}
+                onConfirmPressed={() => onConfirmPress()}></Alerts>
 
 
 

@@ -14,6 +14,9 @@ import Carousel from 'react-native-snap-carousel';
 import RBSheet from "react-native-raw-bottom-sheet";
 import Modal from 'react-native-modal'
 import Firebase from '../firebase/Firebase';
+import Alerts from '../utils/Alerts'
+
+
 
 const CheckList = ({ navigation }) => {
 
@@ -24,8 +27,10 @@ const CheckList = ({ navigation }) => {
     const Screenwidth = Dimensions.get('window').width
 
     useEffect(() => {
-        getCheckList()
-        onConversation()
+        console.log("user limit ======== >");
+        userLimit()
+        console.log("After user limit ======== >");
+        console.log("inside if");
     }, [getCheckList]);
 
     const [loading, setLoading] = useState(false)
@@ -33,6 +38,20 @@ const CheckList = ({ navigation }) => {
     const [desc, setDesc] = useState()
     const [visible, setVisible] = useState(false)
     const [uri, setUri] = useState("")
+    const [openAlert, setOpenAlert] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [buttonTxt, setButtonTxt] = useState('Ok');
+    const [alertSuccess, setAlertSuccess] = useState(false);
+    const [success, setSuccess] = useState()
+    const [on, setOn] = useState()
+
+
+    const confirmPress = () => {
+        if (!success) {
+            navigation.navigate("Settings")
+        }
+
+    };
 
     const getCheckList = async () => {
 
@@ -116,13 +135,13 @@ const CheckList = ({ navigation }) => {
 
     const renderItem = ({ item, index }) => {
         return (
-            
+
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 {/* <View style={{ alignSelf: 'center', backgroundColor: 'red' }}>
                     <Text>{item.checkListTitle}</Text>
                 </View> */}
-             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
-               
+                <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
+
                 <View style={{
                     height: 400,
                     marginTop: 10,
@@ -221,13 +240,43 @@ const CheckList = ({ navigation }) => {
 
     }
 
+    const userLimit = async () => {
+        console.log("inside userlimit method");
+        console.log(Session.userObj.userId);
+        setLoading(true)
+        await Http.get(Constants.END_POINT_CHECK_USER_LIMIT + Session.userObj.userId).then((response) => {
+            console.log("after get request method");
+            setLoading(false)
+            console.log("response limit data === > " + JSON.stringify(response.data));
+            if (response.data.success) {
+                console.log("true");
+                setSuccess(true)
+                if (response.data.data[0].showCheckList == "Y") {
+                    getCheckList()
+                    onConversation()
+                    setOn(true)
+                }
+                else {
+                    setOn(false)
+                }
+            }
+            else {
+                setSuccess(false)
+                setMsg(response.data.message)
+                setOpenAlert(true)
+            }
+        }, (error) => {
+            console.log("error ==>" + error);
+        })
+    }
+
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
             <Loader loading={loading} ></Loader>
-            <View style={{ height: 80, width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
+            <View style={{ width: "100%", backgroundColor: 'white', borderBottomWidth: 0.1, elevation: 10, flexDirection: 'row', alignItems: 'flex-end' }}>
+                <View style={{ marginVertical: 10, flexDirection: 'row', alignItems: 'center', width: "50%", justifyContent: 'space-between' }}>
                     {/* <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                         <Icons name='bars' size={25} color="black" style={{ marginLeft: 20 }} />
                     </TouchableOpacity> */}
@@ -405,6 +454,12 @@ const CheckList = ({ navigation }) => {
                     </View>
                 }
             />
+
+            <Alerts
+                showAlert={openAlert}
+                buttonTxt={buttonTxt}
+                msg={msg}
+                onConfirmPressed={() => confirmPress()}></Alerts>
         </View>
     )
 }

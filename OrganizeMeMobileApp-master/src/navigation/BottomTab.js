@@ -12,7 +12,7 @@ import AppImages from '../theme/AppImages';
 import Profile from '../screens/Profile';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import WebViews from '../screens/WebViews';
-
+import WebViewCheckList from '../screens/WebViewCheckList';
 
 
 const Tab = createBottomTabNavigator();
@@ -48,6 +48,8 @@ const CheckStack = () => {
         <stack.Navigator screenOptions={{ headerShown: false }}>
             <stack.Screen name="CheckList" component={CheckList} />
             <stack.Screen name="Profile" component={Profile} />
+            <stack.Screen name="WebViewCheckList" component={WebViewCheckList} />
+
         </stack.Navigator>
     );
 };
@@ -61,7 +63,7 @@ const BottomTab = () => {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                // unmountOnBlur: true,
+                unmountOnBlur: true,
                 tabBarActiveTintColor: Colors.COLOR_THEME,
                 tabBarStyle: {
                     elevation: 10,
@@ -85,13 +87,13 @@ const BottomTab = () => {
                 options={{
 
                     tabBarStyle: {
-                       
+
                     },
                     tabBarLabelStyle: {
                         color: 'black',
                         fontSize: 12,
                         fontWeight: '600',
-                        
+
                     },
                     tabBarIcon: ({ tintColor, focused }) => (
                         <View
@@ -114,6 +116,7 @@ const BottomTab = () => {
                                 style={{
                                     // tintColor: focused ? Colors.THEME_WHITE : "#000000",
                                 }}
+                                color={"black"}
                             />
                         </View>
                     ),
@@ -202,6 +205,7 @@ const BottomTab = () => {
                                 style={{
                                     // tintColor: focused ? Colors.THEME_WHITE : "#000000",
                                 }}
+                                color={"black"}
                             />
                         </View>
                     ),

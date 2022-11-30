@@ -37,7 +37,7 @@ export default class Alerts extends React.Component {
                     showProgress={false}
                     title="Info"
                     message={this.props.msg}
-                    closeOnTouchOutside={true}
+                    closeOnTouchOutside={false}
                     closeOnHardwareBackPress={false}
                     showConfirmButton={true}
                     confirmText={this.props.buttonTxt}
