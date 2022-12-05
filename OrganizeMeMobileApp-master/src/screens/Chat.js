@@ -545,7 +545,7 @@ const Chat = ({ navigation }) => {
                     ["Send Document"]: handlePickDocument,
                 }}
                 icon={() => (
-                    <Icon name={"attachment"} size={28} color={Colors.colorPrimary} />
+                    <Icon name={"attachment"} size={28} color={"black"} />
                 )}
                 onSend={(args) => console.log("Sending arguments " + args)}
             />
@@ -920,8 +920,7 @@ const Chat = ({ navigation }) => {
                     name: Session.userObj.userName,
                     avatar: Session.userObj.imgUrl,
                 }}
-
-
+            
                 // renderSend={(props) => {
                 //     const { text, messageIdGenerator, user, onSend } = props;
                 //     return (

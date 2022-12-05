@@ -35,7 +35,7 @@ import {
 import Alerts from '../utils/Alerts';
 const IAPSKU = Platform.select({
   android: ["com.organizeme.iap.oneyear", "com.organizeme.iap.onemonth", "com.organizeme.iap.oneyearvip"],
-  ios: []
+  ios: ["com.letsgetorganized.iap.onemonth","com.letsgetorganized.iap.oneyear"]
 })
 
 
@@ -66,9 +66,7 @@ const Package = ({ navigation }) => {
 
 
   const handleSubscription = async (plan) => {
-    console.log("sessionn user pacakge obj before === >" + JSON.stringify(Session.userPackage));
     Session.cleanUserPackage()
-    console.log("sessionn user pacakge obj after === >" + JSON.stringify(Session.userPackage));
     console.log(plan.AndroidSubscriptionId);
     try {
       console.log("inside try");
@@ -79,10 +77,9 @@ const Package = ({ navigation }) => {
       Session.userPackage.packageId = plan.AndroidSubscriptionId
       console.log("sessionn user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
     } catch (err) {
-
       console.log("err-->", err);
       console.log(" ======================" + msg + success);
-      navigation.navigate('Settings')
+      navigation.navigate('Package')
       // toggleProcessing(false);
     }
   };

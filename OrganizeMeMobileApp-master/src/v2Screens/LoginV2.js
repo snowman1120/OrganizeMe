@@ -295,17 +295,21 @@ const Login = ({ navigation }) => {
   }
   const onConfirm = () => {
     console.log('Confirm Button Pressed');
-    setVisible(false);
+    setVisible(false)
+    setTimeout(() => {
+      console.log('I am appearing...', 'After 1 seconds!');
+      if (id == 1) {
+        onFacebookButtonPress()
+      }
+      else if (id == 2) {
+        _signIn()
+      }
+      else {
+        setVisible(false);
+        onAppleButtonPress()
+      }
 
-    if (id == 1) {
-      onFacebookButtonPress()
-    }
-    else if (id == 2) {
-      _signIn()
-    }
-    else {
-      onAppleButtonPress()
-    }
+    }, 1000);
 
   };
 
@@ -697,7 +701,10 @@ const Login = ({ navigation }) => {
             />
 
             <TouchableOpacity
-              onPress={() => onConfirm()}
+              onPress={() => {
+                setVisible(false)
+                onConfirm()
+              }}
               style={{
                 height: 40,
                 marginBottom: 20,

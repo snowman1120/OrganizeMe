@@ -20,9 +20,8 @@ import Route from '../navigation/Route';
 import Package from './Package';
 import AsyncMemory from '../utils/AsyncMemory';
 import Firebase from '../firebase/Firebase';
-// import Video from 'react-native-video';
-// import VideoPlayer from 'react-native-video-player'
 import Video from 'react-native-video';
+// import VideoPlayer from 'react-native-video-player'
 import logoVedio from '../assets/logo.mp4';
 import GifImage from '@lowkey/react-native-gif'
 //Fb APP ID

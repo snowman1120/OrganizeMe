@@ -149,8 +149,8 @@ android {
         applicationId "com.axsosntech.organizeme"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "2.1"
+        versionCode 13
+        versionName "2.2"
         multiDexEnabled true
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         // react-native-iap: we only use the Google Play flavor
