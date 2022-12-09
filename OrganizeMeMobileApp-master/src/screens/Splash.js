@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   View,
   Text,
@@ -18,14 +18,13 @@ import VersionInfo from 'react-native-version-info';
 import SwitchNavigator from '../navigation/SwitchNavigator';
 import Route from '../navigation/Route';
 import Package from './Package';
-import GifImage from '@lowkey/react-native-gif';
 import AsyncMemory from '../utils/AsyncMemory';
 import Firebase from '../firebase/Firebase';
 // import Video from 'react-native-video';
 // import VideoPlayer from 'react-native-video-player'
 import Video from 'react-native-video';
 import logoVedio from '../assets/logo.mp4';
-
+import GifImage from '@lowkey/react-native-gif'
 //Fb APP ID
 //App ID:540937094082492
 
@@ -200,9 +199,11 @@ export default class Splash extends Component {
           if (Session.userObj.userPackageId != '') {
             setTimeout(() => {
               this.onConversation();
+            this.props.navigation.replace('BottomTab');
             }, 3000);
-          } else {
-            this.props.navigation.replace('Package');
+          }
+          else {
+            this.props.navigation.replace('BottomTab');
           }
         } else {
           setTimeout(() => {
@@ -228,14 +229,14 @@ export default class Splash extends Component {
         {/* <Loader loading={this.state.loading}></Loader> */}
         <StatusBar backgroundColor={Colors.COLOR_THEME}></StatusBar>
         {/* <Text style={{ fontSize: 26, fontWeight: 'bold', color: Colors.COLOR_BLACK }}>Organize Me</Text> */}
-        {/* <GifImage
+        <GifImage
           source={require('../assets/logoNew.gif')}
           style={{
-            height: 400,
+            height: 350,
             width: 350,
           }}
           resizeMode="contain"
-        /> */}
+        />
         {/* <VideoPlayer
                     video={{ uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' }}
                     videoWidth={1600}
@@ -244,11 +245,11 @@ export default class Splash extends Component {
                     onVideoEnd={() =>  console.log("vedio end")}
                 /> */}
 
-        <Video source={require('../assets/logo.mp4')}
-                    style={{ height: 200, width: 200, backgroundColor: 'white' }}
-                    ref={(ref) => {
-                        this.player = ref
-                    }} resizeMode="contain" />
+        {/* <Video source={require('../assets/logo.mp4')}
+          style={{ height: 200, width: 200, backgroundColor: 'white' }}
+          ref={(ref) => {
+            this.player = ref
+          }} resizeMode="contain" /> */}
         {/* <Image source={require('../assets/splash.gif')} style={{
                         height: 400,
                         width: 350

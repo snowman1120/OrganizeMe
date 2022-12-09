@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Colors from '../theme/Colors';
-import CountryPicker, {Option} from 'react-native-country-picker-modal';
-import {CountryCode, Country} from '../types';
+import CountryPicker, { Option } from 'react-native-country-picker-modal';
+// import { CountryCode, Country } from '../types';
 import Constants from '../http/Constants';
 import Http from '../http/Http';
 import Session from '../utils/Session';
@@ -21,20 +21,20 @@ import utils from '../utils/Utils';
 import Alerts from '../utils/Alerts';
 import Loader from '../utils/loader';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {ScrollView} from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import RenderHtml from 'react-native-render-html';
 import Modal from 'react-native-modal';
 import CheckBox from 'react-native-check-box';
 
-const SignupV2 = ({navigation}) => {
-  const [countryCode, setCountryCode] = useState('FR');
-  const [country, setCountry] = useState(null);
+const SignupV2 = ({ navigation }) => {
+  const [countryCode, setCountryCode] = useState();
+  const [country, setCountry] = useState(Session.signUpObj.countryName);
   const [withFlag, setWithFlag] = useState(true);
   const [withEmoji, setWithEmoji] = useState(true);
   const [withFilter, setWithFilter] = useState(true);
   const [withModal, setWithModal] = useState(true);
   const [withAlphaFilter, setWithAlphaFilter] = useState(false);
-  const [withCallingCode, setWithCallingCode] = useState(false);
+  const [withCallingCode, setWithCallingCode] = useState(Session.signUpObj.countryPhoneCode);
   const [withCountryNameButton, setWithCountryNameButton] = useState(false);
   const [cText, setCText] = useState('');
   const [userName, setUserName] = useState('');
@@ -51,8 +51,8 @@ const SignupV2 = ({navigation}) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState();
   const [items, setItems] = useState([
-    {label: 'Male', value: 'Male'},
-    {label: 'Female', value: 'Female'},
+    { label: 'Male', value: 'Male' },
+    { label: 'Female', value: 'Female' },
   ]);
   const [checked, setChecked] = useState(false);
   const [showConfirm, setShowConfirm] = useState('none');
@@ -92,35 +92,28 @@ const SignupV2 = ({navigation}) => {
     if (checked) {
       if (
         userName == '' ||
-        phone == '' ||
-        email == '' ||
-        countryCode == '' ||
-        country.name == '' ||
-        value == ''
+        email == ''
       ) {
-        setLoading(false);
         setMsg('Enter correct details');
-        setOpenAlert(true);
+        setOpenAlert(true)
         return;
       } else {
         Session.signUpObj.userName = userName;
         Session.signUpObj.phone = phone;
         Session.signUpObj.email = email;
-        Session.signUpObj.countryCode = countryCode;
+        Session.signUpObj.countryCode = 'USA';
         Session.signUpObj.countryName = country.name;
-        Session.signUpObj.countryPhoneCode = country.callingCode[0];
+        Session.signUpObj.countryPhoneCode = withCallingCode
         Session.signUpObj.gender = value;
 
         if (password == rePassword) {
           Session.signUpObj.password = password;
         } else {
-          setLoading(false);
-          setOpenAlert(true);
           setMsg('Enter same passwords');
           return;
         }
         console.log(JSON.stringify(Session.signUpObj));
-
+        setLoading(true)
         await Http.post(Constants.END_POINT_SIGNUP, Session.signUpObj).then(
           response => {
             setLoading(false);
@@ -132,7 +125,7 @@ const SignupV2 = ({navigation}) => {
               setMsg(response.data.message);
               console.log(
                 'response.data.data.msg' +
-                  JSON.stringify(response.data.message),
+                JSON.stringify(response.data.message),
               );
               setOpenAlert(true);
             } else {
@@ -215,13 +208,9 @@ const SignupV2 = ({navigation}) => {
           Sign Up
         </Text>
 
-        <KeyboardAvoidingView
-          style={{flex: 1, backgroundColor: 'white', justifyContent: 'center'}}
-          keyboardVerticalOffset={240}
-          behavior={Platform.OS == 'ios' ? 'padding' : 'position'}>
-          <ScrollView style={{marginTop: 10, marginBottom: 20}}>
-            <View style={{flex: 1}}>
-              <View style={{marginLeft: 20, marginTop: 10}}>
+          <ScrollView style={{ marginTop: 10, marginBottom: 20 }}>
+            <View style={{ flex: 1 }}>
+              <View style={{ marginLeft: 20, marginTop: 10 }}>
                 {/* <Text style={{ fontSize: 16, color: "#6cbaeb", marginLeft: 10, marginTop: 10, fontWeight: 'bold' }}>Email</Text> */}
                 {/* <View style={{ width: "80%" , backgroundColor : "white", elevation : 10  , height : 50 , borderRadius : 20 , marginTop : 10 }}></View> */}
                 <View
@@ -235,7 +224,7 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                     borderRadius: 20,
                   }}>
-                  <Icon name="user" size={20} style={{marginLeft: 15}} />
+                  <Icon name="user" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
                     autoCapitalize="none"
                     onSubmitEditing={() => {
@@ -243,13 +232,13 @@ const SignupV2 = ({navigation}) => {
                     }}
                     placeholder="Full name"
                     onChangeText={value => setUserName(value)}
-                    style={{width: 230, marginLeft: 10}}
+                    style={{ width: 230, marginLeft: 10 , color : "black" }}
                     placeholderTextColor={'gray'}
                   />
                 </View>
               </View>
 
-              <View style={{zIndex: 1000}}>
+              <View style={{ zIndex: 1000 }}>
                 <DropDownPicker
                   open={open}
                   value={value}
@@ -258,8 +247,9 @@ const SignupV2 = ({navigation}) => {
                   setValue={item => setValue(item)}
                   setItems={setItems}
                   placeholder="Select Gender"
-                  dropDownContainerStyle={{width: '70%', alignSelf: 'center'}}
+                  dropDownContainerStyle={{ width: '70%', alignSelf: 'center' }}
                   style={{
+                    display: Session.companySettings.hideOptionalFields == "Y" ? 'none' : 'flex',
                     height: 50,
                     alignItems: 'center',
                     marginRight: 20,
@@ -271,10 +261,10 @@ const SignupV2 = ({navigation}) => {
                     borderRadius: 20,
                     borderWidth: 0,
                   }}
-                  // containerStyle={{ height: 40, justifyContent: 'center', alignItems: 'center', width: "85%" , alignSelf: 'center', borderRadius: 30 }}
+                // containerStyle={{ height: 40, justifyContent: 'center', alignItems: 'center', width: "85%" , alignSelf: 'center', borderRadius: 30 }}
                 />
               </View>
-              <View style={{marginLeft: 20, marginTop: 10}}>
+              <View style={{ marginLeft: 20, marginTop: 10 }}>
                 <View
                   style={{
                     height: 50,
@@ -286,7 +276,7 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                     borderRadius: 20,
                   }}>
-                  <Icon name="envelope" size={20} style={{marginLeft: 15}} />
+                  <Icon name="envelope" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
                     autoCapitalize="none"
                     ref={emailRef}
@@ -295,15 +285,16 @@ const SignupV2 = ({navigation}) => {
                     }}
                     placeholder="E-mail"
                     onChangeText={value => setEmail(value)}
-                    style={{width: 230, marginLeft: 10}}
+                    style={{ width: 230, marginLeft: 10  , color : "black"}}
                     placeholderTextColor={'gray'}
                   />
                 </View>
               </View>
 
-              <View style={{marginLeft: 20, marginTop: 10}}>
+              <View style={{ marginLeft: 20, marginTop: 10 }}>
                 <View
                   style={{
+                    display: Session.companySettings.hideOptionalFields == "Y" ? 'none' : 'flex',
                     height: 50,
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -313,7 +304,7 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                     borderRadius: 20,
                   }}>
-                  <Icon name="phone" size={20} style={{marginLeft: 15}} />
+                  <Icon name="phone" size={20} style={{ marginLeft: 15 }}  color = {"black"}/>
                   <TextInput
                     ref={phoneRef}
                     keyboardType="numeric"
@@ -322,13 +313,18 @@ const SignupV2 = ({navigation}) => {
                     }}
                     placeholder="Phone"
                     onChangeText={value => setPhone(value)}
-                    style={{width: 230, marginLeft: 10}}
+                    style={{
+                      width: 230, marginLeft: 10 , color : "black"
+                    }}
                     placeholderTextColor={'gray'}
                   />
                 </View>
               </View>
 
-              <View style={{marginLeft: 20, marginTop: 10}}>
+              <View style={{
+                display: Session.companySettings.hideOptionalFields == "Y" ? 'none' : 'flex',
+                marginLeft: 20, marginTop: 10
+              }}>
                 <View
                   style={{
                     height: 50,
@@ -344,6 +340,7 @@ const SignupV2 = ({navigation}) => {
                   <Text
                     style={{
                       marginLeft: 20,
+                      color : "black"
                     }}>
                     {cText ? cText : 'Choose country'}
                   </Text>
@@ -364,7 +361,7 @@ const SignupV2 = ({navigation}) => {
                 </View>
               </View>
 
-              <View style={{marginLeft: 20, marginTop: 10}}>
+              <View style={{ marginLeft: 20, marginTop: 10 }}>
                 <View
                   style={{
                     height: 50,
@@ -376,7 +373,7 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                     borderRadius: 20,
                   }}>
-                  <Icon name="lock" size={20} style={{marginLeft: 15}} />
+                  <Icon name="lock" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
                     secureTextEntry
                     ref={passRef}
@@ -385,13 +382,13 @@ const SignupV2 = ({navigation}) => {
                     }}
                     placeholder="Password"
                     onChangeText={value => setPassword(value)}
-                    style={{width: 230, marginLeft: 10}}
+                    style={{ width: 230, marginLeft: 10 , color : "black"}}
                     placeholderTextColor={'gray'}
                   />
                 </View>
               </View>
 
-              <View style={{marginLeft: 20, marginTop: 10}}>
+              <View style={{ marginLeft: 20, marginTop: 10 }}>
                 <View
                   style={{
                     height: 50,
@@ -403,13 +400,13 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                     borderRadius: 20,
                   }}>
-                  <Icon name="lock" size={20} style={{marginLeft: 15}} />
+                  <Icon name="lock" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
                     secureTextEntry
                     ref={rePassRef}
                     placeholder="Confirm Password"
                     onChangeText={value => setRePassword(value)}
-                    style={{width: 230, marginLeft: 10}}
+                    style={{ width: 230, marginLeft: 10 , color : "black" }}
                     placeholderTextColor={'gray'}
                   />
                 </View>
@@ -426,7 +423,7 @@ const SignupV2 = ({navigation}) => {
                   marginTop: 20,
                 }}>
                 <CheckBox
-                  style={{flex: 1, maxWidth: 30}}
+                  style={{ flex: 1, maxWidth: 30 }}
                   onClick={() => onCheckBoxClick()}
                   isChecked={checked}
                   checkBoxColor="#6cbaeb"
@@ -468,7 +465,7 @@ const SignupV2 = ({navigation}) => {
                   elevation: 10,
                   borderRadius: 20,
                 }}>
-                <Text style={{color: 'white', fontWeight: 'bold'}}>
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>
                   SIGN UP
                 </Text>
               </TouchableOpacity>
@@ -480,7 +477,7 @@ const SignupV2 = ({navigation}) => {
                     marginTop: 20,
                   }}
                   onPress={() => navigation.navigate('LoginV2')}>
-                  <Text style={{alignSelf: 'center', marginTop: 10}}>
+                  <Text style={{ alignSelf: 'center', marginTop: 10  , color :"black"}}>
                     Already have an account?
                   </Text>
                   <Text
@@ -497,7 +494,6 @@ const SignupV2 = ({navigation}) => {
               </View>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
       </View>
       <Alerts
         showAlert={openAlert}
@@ -536,7 +532,7 @@ const SignupV2 = ({navigation}) => {
             <RenderHtml
               contentWidth={width}
               // style={{ alignSelf: "center" , marginLeft :10}}
-              source={{html: Session.companySettings.termsText}}
+              source={{ html: Session.companySettings.termsText }}
             />
 
             <TouchableOpacity
@@ -553,7 +549,7 @@ const SignupV2 = ({navigation}) => {
                 elevation: 10,
                 borderRadius: 20,
               }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>CONFIRM</Text>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>CONFIRM</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

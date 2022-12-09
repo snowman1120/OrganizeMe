@@ -178,7 +178,7 @@ const Profile = ({ navigation }) => {
             <Loader loading={loading}></Loader>
             <View style={{ height: 200, width: "100%", backgroundColor: Colors.COLOR_THEME, borderBottomLeftRadius: 100, borderBottomRightRadius: 100, position: "absolute" }}>
                 <View style={{ flexDirection: "row", marginTop: 20, marginLeft: 10 }}>
-                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => onBackHandler()}>
+                    <TouchableOpacity style={{ flexDirection: "row", marginTop: 20 }} onPress={() => onBackHandler()}>
                         <Icon name="arrow-left" size={20} color="white" />
                         <Text style={{ fontSize: 16, fontWeight: "bold", color: 'white', marginLeft: 20 }}>User Profile</Text>
                     </TouchableOpacity>

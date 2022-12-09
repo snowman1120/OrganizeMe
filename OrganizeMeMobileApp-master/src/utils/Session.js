@@ -15,6 +15,13 @@ class Session {
   static cleanImgs() {
     this.imgs = [];
   }
+  static cleanUserPackage() {
+    this.userPackage = {
+      userId: "",
+      packageId: "",
+      purchasedObject: ""
+    }
+  }
 
   static conversation = {
     senderId: '',
@@ -48,9 +55,9 @@ class Session {
     userName: '',
     email: '',
     phone: '',
-    countryCode: '',
-    countryName: '',
-    countryPhoneCode: '',
+    countryCode: 'USA',
+    countryName: 'America',
+    countryPhoneCode: '+1',
     roleId: '2',
     authId: '1',
     password: '',
@@ -65,6 +72,7 @@ class Session {
   static userPackage = {
     userId: '',
     packageId: '',
+    purchasedObject: ''
   };
   static cleanUserObj() {
     this.userObj = [];
