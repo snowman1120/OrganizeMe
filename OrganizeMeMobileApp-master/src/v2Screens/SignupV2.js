@@ -66,6 +66,11 @@ const SignupV2 = ({ navigation }) => {
   const rePassRef = useRef();
   const scrollViewRef = useRef();
 
+  const [passwordVisible, setPasswordVisible] = useState(true)
+  const [secureText, setSecureText] = useState(true)
+
+
+console.log("Company settings = "+Session.companySettings.termsText)
   useEffect(() => {
     setCText('');
     Session.cleanSignUpObj;
@@ -87,7 +92,10 @@ const SignupV2 = ({ navigation }) => {
   const showPrivacyModal = () => {
     setVisible(true);
   };
-
+  const onPressEyeButton=()=>{
+    setPasswordVisible(!passwordVisible);
+     setSecureText(!secureText);
+  }
   const onSignUpClick = async () => {
     if (checked) {
       if (
@@ -375,7 +383,7 @@ const SignupV2 = ({ navigation }) => {
                   }}>
                   <Icon name="lock" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
-                    secureTextEntry
+                    secureTextEntry={secureText}
                     ref={passRef}
                     onSubmitEditing={() => {
                       rePassRef.current.focus();
@@ -385,7 +393,10 @@ const SignupV2 = ({ navigation }) => {
                     style={{ width: 230, marginLeft: 10 , color : "black"}}
                     placeholderTextColor={'gray'}
                   />
+                <Icon name={passwordVisible?"eye-slash": "eye"} size={20} style={{ marginRight: 5 }} color={"black"} onPress={onPressEyeButton} />
+            
                 </View>
+              
               </View>
 
               <View style={{ marginLeft: 20, marginTop: 10 }}>
@@ -402,13 +413,15 @@ const SignupV2 = ({ navigation }) => {
                   }}>
                   <Icon name="lock" size={20} style={{ marginLeft: 15 }} color = {"black"} />
                   <TextInput
-                    secureTextEntry
+                    secureTextEntry ={secureText}
                     ref={rePassRef}
                     placeholder="Confirm Password"
                     onChangeText={value => setRePassword(value)}
                     style={{ width: 230, marginLeft: 10 , color : "black" }}
                     placeholderTextColor={'gray'}
                   />
+                    <Icon name={passwordVisible?"eye-slash": "eye"} size={20} style={{ marginRight: 5 }} color={"black"} onPress={onPressEyeButton} />
+            
                 </View>
               </View>
               {/* <TouchableOpacity onPress={() => showPrivacyModal()} style={{ marginVertical: 10, marginLeft: 20 }}>
@@ -549,7 +562,7 @@ const SignupV2 = ({ navigation }) => {
                 elevation: 10,
                 borderRadius: 20,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>CONFIRM</Text>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Confirm</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

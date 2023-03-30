@@ -257,7 +257,9 @@ const CheckList = ({ navigation }) => {
                     setOn(true)
                 }
                 else {
-                    setOn(false)
+                    setSuccess(false)
+                setMsg(response.data.message)
+                setOpenAlert(true)
                 }
             }
             else {

@@ -2,6 +2,8 @@ export default {
   JWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb21wYW55TmFtZSI6Ik9yZ2FuaXplTWUiLCJjb21wYW55SWQiOiIxIiwiZW1haWwiOiJkb2N0b3JAZ21haWwuY29tIn0.gwAhnEOdK91gGaln-ohIIcCgPEQpihcWpzZpe0XbIJg',
   BASE_URL: 'http://app.letsgetorganized-app.com/services',
   END_POINT_SIGNIN: '/api/v1/SignIn',
+  END_POINT_UPDATE_CHECK: '/api/v1/Admin/UpdateCheckMark',
+
   END_POINT_GETPACKAGES: '/api/v1/getPackages',
   END_POINT_SIGNUP: '/api/v1/SignUp',
   END_POINT_GET_COMPANY_SETTINGS: '/api/v1/getCompanySettings',

@@ -58,6 +58,11 @@ const Login = ({ navigation }) => {
   const [success, setSuccess] = useState(false);
   const [visible, setVisible] = useState(false)
   const [modalSuccess, setModalSuccess] = useState()
+  const [passwordVisible, setPasswordVisible] = useState(true)
+  const [secureText, setSecureText] = useState(true)
+
+
+
 
   const pasRef = useRef();
   const videoRef = useRef();
@@ -202,15 +207,22 @@ const Login = ({ navigation }) => {
         if (response.data.success) {
           Session.userObj = response.data.data.user[0];
           Session.docObj = response.data.data.doctor[0];
-          AsyncMemory.storeItem('userObj', Session.userObj);
-          AsyncMemory.storeItem('docObj', Session.docObj);
-          // if (response.data?.data?.user[0]?.userPackageId != '') {
-          //   navigation.replace('BottomTab');
-          // } 
-          // else {
-          //   navigation.replace('Package');
-          // }
-          navigation.replace('BottomTab');
+          
+
+console.log("==================================================")
+
+             console.log(Session.userObj);
+          if(Session.userObj.isAgreementChecked=='Y'){
+             console.log("agreement trye")
+             console.log(navigation)
+             AsyncMemory.storeItem('userObj', Session.userObj);
+             AsyncMemory.storeItem('docObj', Session.docObj);
+           
+             navigation.replace('BottomTab');
+          }
+          else{
+            setVisible(true)
+          }
         } else {
           setSuccess(false);
           setButtonTxt('Cancel');
@@ -291,21 +303,21 @@ const Login = ({ navigation }) => {
   const onSocialSignInPress = (Id) => {
     console.log("id == >" + Id); //1 for fb , 2 for google , 3 for apple 
     setId(Id)
-    setVisible(true)
-  }
-  const onConfirm = () => {
-    console.log('Confirm Button Pressed');
-    setVisible(false);
-
-    if (id == 1) {
+    if (Id == 1) {
       onFacebookButtonPress()
     }
-    else if (id == 2) {
+    else if (Id == 2) {
       _signIn()
     }
     else {
       onAppleButtonPress()
     }
+  }
+  const onConfirm = () => {
+    console.log('Confirm Button Pressed');
+    setVisible(false);
+
+    updateCheckMark('Y')
 
   };
 
@@ -334,11 +346,35 @@ const Login = ({ navigation }) => {
         // play services not available or outdated
       } else {
         alert(error);
-
         // some other error happened
       }
     }
   };
+
+
+  const updateCheckMark= async (checkMark)=>{
+
+    console.log("userId = "+Session.userObj.userId);
+   let obj = {
+    "userId" : Session.userObj.userId,
+    "checkMark":checkMark
+   }
+
+    await Http.post(Constants.END_POINT_UPDATE_CHECK, obj).then(
+      response => {
+        setLoading(false);
+        console.log(response.data);
+          
+          navigation.replace('BottomTab');
+          
+
+          // console.log("company packages === >" + JSON.stringify(Session.companyPackages));
+       
+      },
+      error => {
+      },
+    );
+  }
 
   const FbSignIn = async () => {
     console.log('Fb Singin Pressed');
@@ -390,6 +426,10 @@ const Login = ({ navigation }) => {
       // user is authenticated
       console.log("inside ifff");
     }
+  }
+  const onPressEyeButton=()=>{
+    setPasswordVisible(!passwordVisible);
+     setSecureText(!secureText);
   }
 
   return (
@@ -492,15 +532,24 @@ const Login = ({ navigation }) => {
                   borderRadius: 20,
                 }}>
                 <Icon name="lock" size={20} style={{ marginLeft: 15 }} color={"black"} />
+                
                 <TextInput
-                  secureTextEntry
+                  secureTextEntry={secureText}
                   onChangeText={Value => setPass(Value)}
                   ref={pasRef}
                   placeholder="Password"
-                  style={{ width: '100%', marginLeft: 10, color: "black" }}
+                  style={{ width: '75%', marginLeft: 10, color: "black" }}
                   placeholderTextColor={'gray'}
+                
+                  // right={
+                  //   <TextInput.Icon color={Colors.COLOR_BLACK} name={passwordVisible ? "eye" : "eye-off"} onPress={onPressEyeButton} />
+                    
+                  // }
                 />
-              </View>
+                  <Icon name={passwordVisible?"eye-slash": "eye"} size={20} style={{ marginRight: 5 }} color={"black"} onPress={onPressEyeButton} />
+              
+               </View>
+              
             </View>
 
             <TouchableOpacity
@@ -710,7 +759,7 @@ const Login = ({ navigation }) => {
                 elevation: 10,
                 borderRadius: 20,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>CONFIRM</Text>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Confirm</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

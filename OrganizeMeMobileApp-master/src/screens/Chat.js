@@ -340,7 +340,7 @@ const Chat = ({ navigation }) => {
             console.log(response.data)
             if (response.data.success) {
                 console.log("set msg");
-                m = [
+               let  m = [
                     {
                         _id: uuid.v4(),
                         text: response.data.data[0].message,
@@ -357,6 +357,10 @@ const Chat = ({ navigation }) => {
 
                 // setMessages(m)
                 setMessages(previousMessages => GiftedChat.append(previousMessages, m))
+
+                socket.emit('doctorMessage', m);
+     
+                
             }
         })
     }
@@ -431,7 +435,9 @@ const Chat = ({ navigation }) => {
                     });
                 }
                 else {
-                    setOn(false)
+                    setSuccess(false)
+                    setMsg(response.data.message)
+                    setOpenAlert(true)
                 }
             }
             else {

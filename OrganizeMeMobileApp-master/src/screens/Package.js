@@ -36,7 +36,7 @@ import {
 import Alerts from '../utils/Alerts';
 const IAPSKU = Platform.select({
   android: ["com.organizeme.iap.oneyear", "com.organizeme.iap.onemonth", "com.organizeme.iap.oneyearvip"],
-  ios: ["com.letsgetorganized.iap.onemonth", "com.letsgetorganized.iap.oneyear"]
+  ios: ["com.letsgetorganized.iap.onemonth", "com.letsgetorganized.iap.oneyear","com.letsgetorganized.iap.oneyearvip"]
 })
 
 
@@ -67,6 +67,7 @@ const Package = ({ navigation }) => {
 
 
   const handleSubscription = async (plan) => {
+    setLoading(true)
     console.log("sessionn user pacakge obj before === >" + JSON.stringify(Session.userPackage));
     Session.cleanUserPackage()
     console.log("sessionn user pacakge obj after === >" + JSON.stringify(Session.userPackage));
@@ -92,26 +93,24 @@ const Package = ({ navigation }) => {
     else {
       console.log("inside ios");
       console.log(plan.IosSubscriptionId);
-      setLoading(true)
       try {
         console.log("inside try");
         // toggleProcessing(true);
         console.warn(plan.IosSubscriptionId);
         console.log("requrest subscription");
-        setLoading(false)
         await requestSubscription(plan.IosSubscriptionId, false);
         Session.userPackage.packageId = plan.IosSubscriptionId
         console.log("sessionn user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
       } catch (err) {
         console.log("err-->", err);
-        setLoading(false)
         console.log(" ======================" + msg + success);
         navigation.navigate('Package')
         // toggleProcessing(false);
       }
     }
-
-
+    setLoading(false)
+    console.log("====================== outside if else ========================");
+    
   };
 
   const loadIAPListeners = async () => {
