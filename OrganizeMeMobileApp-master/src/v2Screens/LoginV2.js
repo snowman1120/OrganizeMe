@@ -33,7 +33,7 @@ import { incremented, addMsg } from '../redux/slices/chat/chatSlice';
 import Video from 'react-native-video';
 import logoVedio from '../assets/logo.mp4';
 import { ScrollView } from 'react-native-gesture-handler';
-import { AppleButton, appleAuth } from '@invertase/react-native-apple-authentication'
+// import { AppleButton, appleAuth } from '@invertase/react-native-apple-authentication'
 import Modal from 'react-native-modal'
 import RenderHtml from 'react-native-render-html';
 
@@ -404,28 +404,28 @@ console.log("==================================================")
   };
 
   const onAppleButtonPress = async () => {
-    // performs login request
-    console.log("apple button pressed");
-    const appleAuthRequestResponse = await appleAuth.performRequest({
+    // // performs login request
+    // console.log("apple button pressed");
+    // const appleAuthRequestResponse = await appleAuth.performRequest({
 
-      requestedOperation: appleAuth.Operation.LOGIN,
-      // Note: it appears putting FULL_NAME first is important, see issue #293
-      requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
-    });
+    //   requestedOperation: appleAuth.Operation.LOGIN,
+    //   // Note: it appears putting FULL_NAME first is important, see issue #293
+    //   requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+    // });
 
-    console.log("appleAuthRequestResponse" + JSON.stringify(appleAuthRequestResponse));
+    // console.log("appleAuthRequestResponse" + JSON.stringify(appleAuthRequestResponse));
 
-    onSocialLoginClick(appleAuthRequestResponse.identityToken, 4);
-    // get current authentication state for user
-    // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+    // onSocialLoginClick(appleAuthRequestResponse.identityToken, 4);
+    // // get current authentication state for user
+    // // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
 
-    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
-    console.log("credentialState" + JSON.stringify(credentialState));
-    // use credentialState response to ensure the user is authenticated
-    if (credentialState === appleAuth.State.AUTHORIZED) {
-      // user is authenticated
-      console.log("inside ifff");
-    }
+    // const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+    // console.log("credentialState" + JSON.stringify(credentialState));
+    // // use credentialState response to ensure the user is authenticated
+    // if (credentialState === appleAuth.State.AUTHORIZED) {
+    //   // user is authenticated
+    //   console.log("inside ifff");
+    // }
   }
   const onPressEyeButton=()=>{
     setPasswordVisible(!passwordVisible);

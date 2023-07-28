@@ -25,36 +25,103 @@ import Firebase from '../firebase/Firebase';
 import Video from 'react-native-video';
 import logoVedio from '../assets/logo.mp4';
 import GifImage from '@lowkey/react-native-gif'
+
+import {
+  initConnection,
+  getAvailablePurchases,
+  endConnection
+} from "react-native-iap";
 //Fb APP ID
 //App ID:540937094082492
-
 export default class Splash extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // loading: true
+      loading: true,
+      productList: null,
     };
   }
-
+  
   componentDidMount() {
     this.getCompanySettings();
     this.getPackages();
     this.performTimeConsumingTask();
+    this.getProductList();
     // Firebase()
     // LocationServicesDialogBox.stopListener();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if 'count' state has changed
+    if (this.state.productList !== prevState.productList) {
+      this.refreshSubscription();
+    }
+  }
+
+  getProductList = async () => {
+    console.log('**************** getProductList ****************');
+    initConnection();
+    this.setState({ loading: true });
+    try {
+      console.log("insdie try");
+      console.log("Before Get Subscriptions");
+      const list = await getAvailablePurchases();
+      this.setState({ productList: list });
+      console.log("After Get Subscriptions");
+      console.log("list of purchases-->" + JSON.stringify(list));
+      
+      this.setState({ loading: false });
+    } catch (error) {
+      alert(error);
+      console.log("error product list", error);
+      this.setState({ loading: false });
+    }
+    endConnection();
+  };
+
+  refreshSubscription = async () => {
+    console.log('********************* Refresh Subscription **************************');
+    console.log(this.state.productList)
+    if (!this.state.productList || this.state.productList.length > 0) return;
+    if (!Session.userObj.packageId) return;
+    Session.userPackage.userId = Session.userObj.userId;
+    this.setState({ loading: true });
+    Session.userPackage.transactionId = 'None';
+    Session.userPackage.packageId = 'None';
+    await Http.post(
+      Constants.END_POINT_UPDATE_USER_PACKAGE,
+      Session.userPackage,
+    ).then(
+      response => {
+        this.setState({ loading: false });
+        console.log(response.data);
+        if (response.data.success) {
+          if (Session.userObj != null) {
+            Session.userObj = response.data.data[0];
+            AsyncMemory.storeItem('userObj', Session.userObj);
+          } else {
+            console.log('user object is null');
+          }
+        } else {
+        }
+      },
+      error => {
+        this.setState({ loading: false });
+        console.log(error);
+        alert(error)
+      },
+    );
   }
 
   getCompanySettings = redirectTo => {
     Http.get(Constants.END_POINT_GET_COMPANY_SETTINGS).then(
       response => {
-        console.warn(response);
-        // this.setState({ loading: false })
+        // this.this.setState({ loading: false })
 
         if (response.data.success) {
           Session.companySettings = response.data.data.companySetting[0];
           Session.appSettings = response.data.data.appSetting[0];
 
-          console.log("Terms text = "+Session.companySettings.termsText)
           if (Session.appSettings.enableApp == 'Y') {
             Session.showSignupButton =
               response.data.data.companySetting[0].showSignup;
@@ -84,7 +151,7 @@ export default class Splash extends Component {
   };
 
   getPackages = async () => {
-    // setLoading(true)
+    // this.setState({ loading: true })
     await Http.get(Constants.END_POINT_GETPACKAGES).then(
       response => {
         if (response.data.success) {
@@ -125,7 +192,7 @@ export default class Splash extends Component {
         Session.conversation,
       ).then(
         response => {
-          // setLoading(false)
+          // this.setState({ loading: false })
           console.log(' before inside  if');
           console.log('response == >' + JSON.stringify(response.data));
           if (response.status >= 200) {
@@ -155,33 +222,6 @@ export default class Splash extends Component {
   };
 
   performTimeConsumingTask = async () => {
-    // console.log("Location Service check ========================")
-    // LocationServicesDialogBox.checkLocationServicesIsEnabled({
-
-    //     message: "<h2 style='color: #0af13e'>Use Location ?</h2>This app wants to change your device settings:<br/><br/>Use GPS, Wi-Fi, and cell network for location<br/><br/><a href='#'>Learn more</a>",
-    //     ok: "YES",
-    //     cancel: "NO",
-    //     enableHighAccuracy: true, // true => GPS AND NETWORK PROVIDER, false => GPS OR NETWORK PROVIDER
-    //     showDialog: true, // false => Opens the Location access page directly
-    //     openLocationServices: true, // false => Directly catch method is called if location services are turned off
-    //     preventOutSideTouch: false, // true => To prevent the location services window from closing when it is clicked outside
-    //     preventBackClick: false, // true => To prevent the location services popup from closing when it is clicked back button
-    //     providerListener: false // true ==> Trigger locationProviderStatusChange listener when the location state changes
-    // }).then(function (success) {
-    //     console.log("Success ==== >" + JSON.stringify(success)); // success => {alreadyEnabled: false, enabled: true, status: "enabled"}
-    // }).catch((error) => {
-    //     console.log("Error ==== > " + error.message); // error.message => "disabled"
-    // });
-
-    // BackHandler.addEventListener('hardwareBackPress', () => { //(optional) you can use it if you need it
-    //     //do not use this method if you are using navigation."preventBackClick: false" is already doing the same thing.
-    //     LocationServicesDialogBox.forceCloseDialog();
-    // });
-
-    // DeviceEventEmitter.addListener('locationProviderStatusChange', function (status) { // only trigger when "providerListener" is enabled
-    //     console.log(status); //  status => {enabled: false, status: "disabled"} or {enabled: true, status: "enabled"}
-    // });
-
     console.log(
       'Before Async==========================================================',
     );

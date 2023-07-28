@@ -21,7 +21,7 @@ export default class CompanyUtils extends Component {
   static getCompanyId() {
     console.log('Bundle === >' + VersionInfo.bundleIdentifier);
     if (VersionInfo.bundleIdentifier == ORGANIZE_ME_APPLICATION_ID) {
-      console.log(' Running  Organize Me  =>' + ORGANIZE_ME_M_ID);
+      console.log(' Running Organize Me  =>' + ORGANIZE_ME_M_ID);
       return ORGANIZE_ME_M_ID;
     } else {
       console.log('Default InternetCart ');

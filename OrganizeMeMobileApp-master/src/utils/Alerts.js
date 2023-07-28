@@ -35,12 +35,14 @@ export default class Alerts extends React.Component {
                     confirmButtonStyle={{ width: 100, justifyContent: 'center', alignItems: 'center' }}
                     show={this.props.showAlert}
                     showProgress={false}
-                    title="Info"
+                    title={this.props.title ? this.props.title : "Info"}
                     message={this.props.msg}
                     closeOnTouchOutside={false}
                     closeOnHardwareBackPress={false}
                     showConfirmButton={true}
+                    showCancelButton={this.props.showCancelButton}
                     confirmText={this.props.buttonTxt}
+                    cancelText={this.props.cancelTxt}
                     confirmButtonColor={Colors.COLOR_THEME}
                     onCancelPressed={this.props.onCancelPressed}
                     onConfirmPressed={this.props.onConfirmPressed}

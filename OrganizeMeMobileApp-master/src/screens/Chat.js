@@ -68,72 +68,6 @@ const Chat = ({ navigation }) => {
 
     }
 
-    // const restoreMessage = () => {
-
-
-
-    //     for (let x = value?.length - 1; x >= 0; x--) {
-
-    //         let obj = value[x];
-    //         let msg = obj[0];
-    //         if (msg?.type == "img") {
-    //             setMessages(messages => [...messages,
-    //             {
-    //                 _id: uuid.v4(),
-    //                 text: '',
-    //                 image: msg?.url,
-    //                 createdAt: new Date(),
-    //                 user: {
-    //                     conversationId: Session.conversationId,
-    //                     _id: msg?.user._id,
-    //                     name: msg?.user.name,
-    //                     avatar: msg?.user.avatar,
-    //                 },
-    //             }
-    //                 ,
-    //             ]);
-
-
-    //         }
-
-
-    //         else if (msg?.type == "pdf") {
-    //             setMessages(messages => [...messages,
-    //             {
-    //                 _id: uuid.v4(),
-    //                 text: <TouchableOpacity onPress={() => Linking.openURL(msg.url)}><Text>{msg.text}</Text></TouchableOpacity>,
-    //                 createdAt: new Date(),
-    //                 url: msg?.url,
-    //                 user: {
-    //                     conversationId: Session.conversationId,
-    //                     _id: msg?.user._id,
-    //                     name: msg?.user.name,
-    //                     avatar: msg?.user.avatar,
-    //                 },
-    //             }
-    //                 ,
-    //             ]);
-    //         }
-
-    //         else {
-    //             setMessages(messages => [...messages,
-    //             {
-    //                 _id: uuid.v4(),
-    //                 text: msg?.text,
-    //                 createdAt: new Date(),
-    //                 user: {
-    //                     conversationId: Session.conversationId,
-    //                     _id: msg?.user._id,
-    //                     name: msg?.user.name,
-    //                     avatar: msg?.user.avatar,
-    //                 },
-    //             }
-    //                 ,
-    //             ]);
-    //         }
-    //     }
-    // }
-
     const getDocObject = async () => {
 
 
@@ -362,7 +296,7 @@ const Chat = ({ navigation }) => {
      
                 
             }
-        })
+        }).catch(error => console.log(error))
     }
 
     const userLimit = async () => {
@@ -446,6 +380,7 @@ const Chat = ({ navigation }) => {
                 setOpenAlert(true)
             }
         }, (error) => {
+            setLoading(false);
             console.log("error ==>" + error);
         })
     }
@@ -469,61 +404,6 @@ const Chat = ({ navigation }) => {
         console.log("user limit ======== >");
         userLimit()
         console.log("After user limit ======== >");
-        // onConversation()
-        // getDocObject()
-        // Firebase()
-        // socket.on('connect', () => {
-        //     console.log("I'm connected with the back-end");
-        // });
-        // socket.emit("addUser", Session.userObj.userId);
-
-        // socket.on('welcomeMessage', msg => {
-
-
-        //     console.log("Doc Objec " + docObject.userId);
-
-        //     console.log("Inside iffff");
-        //     m = [
-        //         {
-        //             _id: uuid.v4(),
-        //             text: msg,
-        //             createdAt: new Date(),
-        //             user: {
-        //                 conversationId: Session.conversationId,
-        //                 _id: docObject.userId,
-        //                 name: docObject.userName,
-        //                 avatar: docObject.imgUrl,
-        //             },
-        //             // image:'http://194.233.69.219/general/doctor.jpg'
-        //         },
-        //     ]
-
-        //     // setMessages(m)
-        //     setMessages(previousMessages => GiftedChat.append(previousMessages, m))
-        //     // useRedux(m)
-        // });
-        // socket.on('chatmessage', msg => {
-        //     console.log("chatmessage:" + msg);
-        // });
-        // socket.on('clientMessage', msg => {
-        //     console.log("Recieving message");
-        //     console.log("msgg == >" + JSON.stringify(msg));
-        //     onReceive([
-        //         {
-        //             _id: uuid.v4(),
-        //             text: msg,
-        //             createdAt: new Date(),
-        //             user: {
-        //                 conversationId: Session.conversationId,
-        //                 _id: docObject.userId,
-        //                 name: docObject.userName,
-        //                 avatar: docObject.imgUrl,
-        //             },
-        //         },
-        //     ])
-
-        // });
-
     }, [])
 
 
@@ -560,19 +440,6 @@ const Chat = ({ navigation }) => {
 
 
     const handlePickImage = async () => {
-        // const options = {
-        //     noData: true,
-        //     title: "Pick an image",
-        //     cancelButtonTitle: "Cancel",
-        //     takePhotoButtonTitle: "Use camera",
-        //     chooseFromLibraryButtonTitle: "Choose from library",
-        //     allowsEditing: true,
-        //     quality: 0.25,
-        //     includeBase64: true,
-        // };
-        // setLoading(true)
-
-        // ImagePicker.launchImageLibrary(options, getImg);
         ImagePicker.launchImageLibrary({
             mediaType: 'photo',
             multiple: false,
@@ -835,47 +702,6 @@ const Chat = ({ navigation }) => {
         setVisible(true)
     }
 
-    // const renderMessageText = (props) => {
-
-    //     console.log("Custom  Message");
-
-    //     const { currentMessage } = props;
-    //     console.log("current Msg == >" + JSON.stringify(currentMessage));
-    //     // console.log("Props == >" + JSON.stringify(props));
-    //     // return
-    //     if (currentMessage.type == "pdf") {
-
-
-    //         return (
-    //             <View style={{ height: 40, width: "90%", justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.COLOR_THEME, borderRadius: 10 }}>
-    //                 <TouchableOpacity onPress={() => Linking.openURL(currentMessage.url)}>
-    //                     <Text style={{ fontSize: 16, margin: 10 }}>{currentMessage.url}</Text>
-    //                 </TouchableOpacity>
-    //             </View>
-    //         )
-
-    //     }
-    //     else if (currentMessage.type == "img") {
-    //         return (
-    //             <View style={{ height: 200, width: 150 , backgroundColor : 'red' }}>
-    //                 <TouchableOpacity  onPress={() => onImagePress(currentMessage.url)} style = {{ height : 150 , width : 150 , justifyContent: 'center' , alignItems : 'center' }} >
-    //                     <Image source={{ uri: currentMessage.url }} style={{ height : "90%" , width : "90%" }} resizeMode="contain"  />
-    //                 </TouchableOpacity>
-    //             </View>
-    //         )
-    //     }
-    //     else {
-    //         console.log("Insidde ELse");
-    //         return (
-    //             <View style={{ maxWidth: "90%", justifyContent: 'center', alignItems: 'flex-end', backgroundColor: Colors.COLOR_THEME, borderRadius: 10 }}>
-    //                 <Text style={{ fontSize: 16, margin: 10 }}>{currentMessage.text}</Text>
-    //             </View>
-    //         )
-    //     }
-
-    //     // return <Bubble {...props} />;
-    // };
-
     const renderTime = props => {
         console.log("render time")
         return (
@@ -927,39 +753,6 @@ const Chat = ({ navigation }) => {
                     avatar: Session.userObj.imgUrl,
                 }}
 
-
-                // renderSend={(props) => {
-                //     const { text, messageIdGenerator, user, onSend } = props;
-                //     return (
-                //         <TouchableOpacity
-                //             // onPressIn={onPressIn}
-                //             // onPressOut={onPressOut}
-                //             // onLongPress={onPressIn}
-                //             onPress={() => {
-                //                 if (text && onSend) {
-                //                     // onSend(
-                //                     //     {
-                //                     //         text: text.trim(),
-                //                     //         user: user,
-                //                     //         _id: messageIdGenerator(),
-                //                     //     },
-                //                     //     true
-                //                     // );
-                //                     onSend(text);
-                //                 }
-                //             }}
-                //             style={styleSheet.sendBtnStyle}
-                //         >
-                //             <Send />
-                //             <Icons
-                //                 color={"black"}
-                //                 style={{ alignSelf: "center" }}
-                //                 size={20}
-                //                 name={"paper-plane" /*isTyping == true ? "send" : "mic"*/}
-                //             ></Icons>
-                //         </TouchableOpacity>
-                //     );
-                // }}
                 renderActions={renderActions}
 
             // scrollToBottomComponent={true}

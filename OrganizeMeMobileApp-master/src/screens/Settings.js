@@ -23,10 +23,6 @@ const ScreenWidth = Dimensions.get('window').width
 
 
 const Settings = ({ navigation }) => {
-
-
-    console.log("user object == >" + JSON.stringify(Session.userObj));
-
     const value = useAppSelector((State) => State.chat.value)
     const dispatch = useAppDispatch()
     const [openAlert, setOpenAlert] = useState(false);

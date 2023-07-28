@@ -19,7 +19,7 @@ class Session {
     this.userPackage = {
       userId: "",
       packageId: "",
-      purchasedObject: ""
+      transactionId: ""
     }
   }
 
@@ -72,7 +72,7 @@ class Session {
   static userPackage = {
     userId: '',
     packageId: '',
-    purchasedObject: ''
+    transactionId: ''
   };
   static cleanUserObj() {
     this.userObj = [];

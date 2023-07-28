@@ -8,6 +8,9 @@ import {
   FlatList,
   StatusBar,
   Platform,
+  Alert,
+  Linking,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Loader from '../utils/loader';
@@ -29,9 +32,10 @@ import {
   validateReceiptIos,
   getReceiptIOS,
   withIAPContext,
-  purchaseUpdateSubscription,
-  purchaseErrorSubscription,
-  completePurchase
+  completePurchase,
+  getAvailablePurchases,
+  getPurchaseHistory,
+  endConnection
 } from "react-native-iap";
 import Alerts from '../utils/Alerts';
 const IAPSKU = Platform.select({
@@ -39,89 +43,39 @@ const IAPSKU = Platform.select({
   ios: ["com.letsgetorganized.iap.onemonth", "com.letsgetorganized.iap.oneyear","com.letsgetorganized.iap.oneyearvip"]
 })
 
+let purchaseUpdateSubscription;
+let purchaseErrorSubscription;
 
+let initialRender = true;
 
 const Package = ({ navigation }) => {
-  const [productList, setProductList] = useState([]);
+  const [productList, setProductList] = useState();
   const [openAlert, setOpenAlert] = useState(false);
-  const [msg, setMsg] = useState('');
+  const [alertTitle, setAlertTitle] = useState('Info');
+  const [alertShowCancelButton, setAlertShowCancelButton] = useState(false);
+  const [cancelButtonTxt, setCancelButtonTxt] = useState('Cancel');
   const [buttonTxt, setButtonTxt] = useState('Ok');
+  const [msg, setMsg] = useState('');
+  const [selectSubscriptionId, setSelectSubscriptionId] = useState();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [purchased, setPurchased] = useState(false);
 
-  let arr = Session.companyPackages;
-  console.log('arrr === >' + JSON.stringify(arr));
+  const packages = Session.companyPackages;
 
   useEffect(() => {
     onConversation();
-    loadPackages();
-    loadIAPListeners();
-    getProductList()
-  }, []);
+    initConnection();
+    getProductList();
 
-  const confirmPress = () => {
-    console.log('Confirm Button Pressed');
-    setSuccess(true)
-    navigation.navigate('Settings')
-  };
-
-
-  const handleSubscription = async (plan) => {
-    setLoading(true)
-    console.log("sessionn user pacakge obj before === >" + JSON.stringify(Session.userPackage));
-    Session.cleanUserPackage()
-    console.log("sessionn user pacakge obj after === >" + JSON.stringify(Session.userPackage));
-    if (Platform.OS == "android") {
-      console.log("inside android");
-      console.log(plan.AndroidSubscriptionId);
-      try {
-        console.log("inside try");
-        // toggleProcessing(true);
-        console.warn(plan.AndroidSubscriptionId);
-        console.log("requrest subscription");
-        await requestSubscription(plan.AndroidSubscriptionId, false);
-        Session.userPackage.packageId = plan.AndroidSubscriptionId
-        console.log("sessionn user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
-      } catch (err) {
-
-        console.log("err-->", err);
-        console.log(" ======================" + msg + success);
-        navigation.navigate('Package')
-        // toggleProcessing(false);
+    purchaseErrorSubscription = purchaseErrorListener(error => {
+      if (!(error['responseCode'] === '2')) {
+        console.log('************* purchaseErrorSubscription ****************', error);
       }
-    }
-    else {
-      console.log("inside ios");
-      console.log(plan.IosSubscriptionId);
-      try {
-        console.log("inside try");
-        // toggleProcessing(true);
-        console.warn(plan.IosSubscriptionId);
-        console.log("requrest subscription");
-        await requestSubscription(plan.IosSubscriptionId, false);
-        Session.userPackage.packageId = plan.IosSubscriptionId
-        console.log("sessionn user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
-      } catch (err) {
-        console.log("err-->", err);
-        console.log(" ======================" + msg + success);
-        navigation.navigate('Package')
-        // toggleProcessing(false);
-      }
-    }
-    setLoading(false)
-    console.log("====================== outside if else ========================");
-    
-  };
+    });
 
-  const loadIAPListeners = async () => {
-    if (purchaseUpdateSubscription) {
-      purchaseUpdateSubscription.remove();
-    }
-    if (purchaseErrorSubscription) {
-      purchaseErrorSubscription.remove();
-    }
-    await initConnection(); // important, or else it won't trigger before a random state change
-    purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
+    purchaseUpdateSubscription = purchaseUpdatedListener(async purchase => {
+      console.log('************* Purchase update *************', purchase);
       console.log("purchased", JSON.stringify(purchase));
       console.log("productId", purchase.productId);
       let receipt = purchase.transactionReceipt;
@@ -129,46 +83,174 @@ const Package = ({ navigation }) => {
         console.log("inside reciept if");
         await finishTransaction(purchase, false);
         console.log("after finish transaction");
-        // completePurchase(purchase, () => {
-        //   console.log("inside complete purchase");
-        //   const tm = setTimeout(() => {
-        //     console.log("go back->");
-        //     navigation.goBack();
-        //     clearTimeout(tm);
-        //   }, 500);
-        // });
         console.log("before receipt");
         console.log("receipt->", receipt);
-        onBuyNowClick(purchase.transactionReceipt,)
-
+        Session.userPackage.userId = Session.userObj.userId;
+        Session.userPackage.transactionId = purchase.transactionId;
+        onBuyNowClick();
       }
     });
-    purchaseErrorSubscription = purchaseErrorListener((error) => {
-      alert("error occured !")
-    });
+
+    return () => {
+      try {
+        purchaseErrorSubscription.remove();
+      } catch(error) { }
+      try {
+        purchaseUpdateSubscription.remove();
+      } catch(error) { }
+      endConnection();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialRender) {
+      initialRender = false;
+    } else {
+      refreshSubscription();
+    }
+  }, [productList]);
+
+  const refreshSubscription = async () => {
+    console.log('********************* Refresh Subscription **************************');
+    Session.userPackage.userId = Session.userObj.userId;
+    if (!productList || productList.length > 0) return;
+    if (!Session.userObj.packageId) return;
+    setLoading(true);
+    Session.userPackage.transactionId = 'None';
+    Session.userPackage.packageId = 'None';
+    await Http.post(
+      Constants.END_POINT_UPDATE_USER_PACKAGE,
+      Session.userPackage,
+    ).then(
+      response => {
+        setLoading(false);
+        console.log(response.data);
+        if (response.data.success) {
+          if (Session.userObj != null) {
+            Session.userObj = response.data.data[0];
+            AsyncMemory.storeItem('userObj', Session.userObj);
+            navigation.replace('BottomTab');
+            console.log(
+              'session user object after refresh === >' +
+              JSON.stringify(Session.userObj),
+            );
+          } else {
+            console.log('user object is null');
+          }
+        } else {
+        }
+      },
+      error => {
+        setLoading(false);
+        console.log(error);
+        alert(error)
+      },
+    );
+  }
+
+  const confirmPress = () => {
+    // onSubscribe(selectSubscriptionId);
+    setOpenAlert(false);
   };
 
+  const cancelPress = () => {
+    setOpenAlert(false);
+  }
+
+  const cancelSubscription = (plan) => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('https://apps.apple.com/account/subscriptions');
+    } else {
+      Linking.openURL(`https://play.google.com/store/account/subscriptions?package=com.axsosntech.organizeme&sku=${plan.AndroidSubscriptionId}`);
+    }
+  }
+
+  const handleSubscription = async (plan) => {
+    const subscriptionId = Platform.select({
+      android: plan.AndroidSubscriptionId,
+      ios: plan.IosSubscriptionId,
+    });
+    // Check if any of the purchases match the subscription product ID
+    const hasActiveSubscription = productList.some(
+      (purchase) => purchase.productId === subscriptionId
+    );
+
+    if (hasActiveSubscription) {
+      console.log('You have an active subscription.');
+      // You can now handle the case where the user has an active subscription
+      setMsg('You have an active subscription.');
+      setOpenAlert(true);
+    } else if (productList.length > 0) {
+      const subscription = packages.find(p => Platform.OS === 'android' ? p.AndroidSubscriptionId === productList[0].productId : p.IosSubscriptionId === productList[0].productId);
+      if (!subscription) {
+          Alert.alert(
+          'Error',
+          'Updated subscription database records',
+        );
+        return;
+      }
+      // setAlertShowCancelButton(true);
+      setAlertShowCancelButton(false);
+      // setAlertTitle('Confirm');
+      setAlertTitle('Info');
+      // setMsg('You are already subscribed to ' + subscription.PackageName + '\n Continue?');
+      setMsg('You are already subscribed to ' + subscription.PackageName);
+      setSelectSubscriptionId(subscriptionId);
+      setOpenAlert(true);
+    } else {
+      console.log('You does not have an active subscription.');
+      onSubscribe(subscriptionId);
+    }
+  };
+
+  const onSubscribe = async (subscriptionId = selectSubscriptionId) => {
+    setLoading(true)
+    console.log("session user pacakge obj before === >" + JSON.stringify(Session.userPackage));
+    Session.cleanUserPackage()
+    console.log("session user pacakge obj after === >" + JSON.stringify(Session.userPackage));
+    console.log("inside android");
+    try {
+      console.log("inside try");
+      console.warn(subscriptionId);
+      console.log("request subscription");
+      await requestSubscription(subscriptionId, false);
+      Session.userPackage.packageId = subscriptionId
+      console.log("session user pacakge obj after plan  === >" + JSON.stringify(Session.userPackage));
+    } catch (err) {
+      console.error("err-->", err);
+      navigation.navigate('Package')
+    }
+    setLoading(false)
+  }
+
+  const onChangePlan = (index) => {
+    setSelectSubscriptionId(
+      Platform.select({
+        android: packages[index].AndroidSubscriptionId,
+        ios: packages[index].IosSubscriptionId,
+      })
+    );
+  }
+
   const getProductList = async () => {
-    console.log("init connection ");
-    const con = await initConnection();
-    console.log("after connection and connection status is ==== >" + con);
+    console.log('**************** getProductList ****************');
+    setLoading(true);
     try {
       console.log("insdie try");
       console.log("Before Get Subscriptions");
-      const list = await getSubscriptions(IAPSKU);
-      setProductList(list)
-      console.log("After Get Subscriptions");
-      console.log("list of Subscriptions-->" + JSON.stringify(list));
-      setLoading(false);
+      const subscriptions = await getSubscriptions(IAPSKU);
+      const list = await getAvailablePurchases();
       setProductList(list);
+      console.log("After Get Subscriptions");
+      console.log("list of purchases-->" + JSON.stringify(list));
+      
+      setLoading(false);
     } catch (error) {
       alert(error);
       console.log("error product list", error);
       setLoading(false);
     }
   };
-
-
 
   const onConversation = async () => {
     Session.conversation.senderId = Session.userObj.userId;
@@ -211,9 +293,7 @@ const Package = ({ navigation }) => {
     }
   };
 
-  const onBuyNowClick = async (data) => {
-    Session.userPackage.userId = Session.userObj.userId;
-    Session.userPackage.purchasedObject = data
+  const onBuyNowClick = async () => {
     console.log(Session.userPackage);
     setLoading(true);
     await Http.post(
@@ -229,7 +309,7 @@ const Package = ({ navigation }) => {
             AsyncMemory.storeItem('userObj', Session.userObj);
             navigation.replace('BottomTab');
             console.log(
-              'session user object after update === >' +
+              'session user object after refresh === >' +
               JSON.stringify(Session.userObj),
             );
           } else {
@@ -247,67 +327,83 @@ const Package = ({ navigation }) => {
   };
 
   const loadPackages = () => {
-    // console.log("arr ==== >" + JSON.stringify(arr));
-    return arr.map(function (data, i) {
+    // console.log("packages ==== >" + JSON.stringify(packages));
+    return packages.map(function (data, i) {
       return (
-        <View key={i}>
-          <Text style={TextStyle.Styles.PACKAGE_STYLE}>{data.PackageName}</Text>
-          <View
-            style={{
-              height: 150,
-              width: '80%',
-              backgroundColor: Colors.COLOR_THEME,
-              borderTopRightRadius: 50,
-              borderBottomRightRadius: 50,
-              elevation: 5,
-              justifyContent: 'center',
-            }}>
-            <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>
-              {data.PackagePrice} $
-            </Text>
-            <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>
-              {data.PackageDuration}
-            </Text>
-          </View>
-
-          <View
-            style={{
-              margin: 40,
-            }}>
-            {loadDescription(data, i)}
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }} key={i}>
+          <View>
+            <Text style={TextStyle.Styles.PACKAGE_STYLE}>{data.PackageName}</Text>
+            <View
+              style={{
+                height: 150,
+                width: '80%',
+                backgroundColor: Colors.COLOR_THEME,
+                borderTopRightRadius: 50,
+                borderBottomRightRadius: 50,
+                elevation: 5,
+                justifyContent: 'center',
+              }}>
+              <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>
+                {data.PackagePrice} $
+              </Text>
+              <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>
+                {data.PackageDuration}
+              </Text>
+            </View>
 
             <View
               style={{
-                width: '90%',
-                marginTop: 20,
-                backgroundColor: 'red',
-                borderWidth: 1,
-              }}></View>
-
-            <TouchableOpacity
-              onPress={() => handleSubscription(data)}
-              style={{
-                height: 50,
-                width: 150,
-                borderColor: Colors.COLOR_THEME,
-                borderWidth: 1,
-                alignSelf: 'center',
-                marginVertical: 40,
-                borderRadius: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
+                margin: 40,
               }}>
+              {loadDescription(data, i)}
+
+              <View
+                style={{
+                  width: '90%',
+                  marginTop: 20,
+                  backgroundColor: 'red',
+                  borderWidth: 1,
+                }}></View>
+              <TouchableOpacity
+                onPress={() => productList && productList.some(purchase => purchase.productId === Platform.select({android: data.AndroidSubscriptionId,ios: data.IosSubscriptionId})) ? cancelSubscription(data) : handleSubscription(data)}
+                // disabled={productList.some(purchase => purchase.productId === Platform.select({android: data.AndroidSubscriptionId,ios: data.IosSubscriptionId})) ? true : false}
+                style={{
+                  height: 50,
+                  width: 150,
+                  borderColor: Colors.COLOR_THEME,
+                  borderWidth: 1,
+                  alignSelf: 'center',
+                  marginTop: 40,
+                  borderRadius: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: FontSize.FONT_SIZE_16,
+                    fontWeight: 'bold',
+                    color: Colors.COLOR_BLACK,
+                  }}>
+                  {productList && productList.some(purchase => purchase.productId === Platform.select({android: data.AndroidSubscriptionId,ios: data.IosSubscriptionId})) ? 'Cancel' : 'Update'}
+                </Text>
+              </TouchableOpacity>
               <Text
                 style={{
                   fontSize: FontSize.FONT_SIZE_16,
                   fontWeight: 'bold',
                   color: Colors.COLOR_BLACK,
+                  alignSelf: 'center',
+                  marginBottom: 30,
+                  marginTop: 30
                 }}>
-                Update
+                {
+                  productList && productList.some(purchase => purchase.productId === Platform.select({android: data.AndroidSubscriptionId,ios: data.IosSubscriptionId})) && 
+                    Session.userObj.packageId === '' ? 'Perhaps other user is subscribed to this. \nPlease cancel this subscription and try again' : 
+                    productList && productList.some(purchase => purchase.productId === Platform.select({android: data.AndroidSubscriptionId,ios: data.IosSubscriptionId})) ? 'You are already subscribed to this' : ''}
               </Text>
-            </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       );
     });
   };
@@ -347,62 +443,6 @@ const Package = ({ navigation }) => {
     });
   };
 
-  // const loadPackages =  () => {
-  //     //packageList= [];
-  //     setpackageList([])
-  //     console.log(Session.companyPackages.length);
-  //     arr1 = Session.companyPackages[0].PackageFeatures.split(';')
-  //     for (let i = 0; i < arr1.length; i++) {
-  //         console.log(arr1[i]);
-  //     }
-
-  //     for (let i = 0; i < Session.companyPackages.length; i++) {
-  //         packageList.push(
-
-  //             <View key={i} >
-  //                 <View>
-
-  //                     <Text style={TextStyle.Styles.PACKAGE_STYLE}>{Session.companyPackages[i].PackageName}</Text>
-  //                     <View style={{
-  //                         height: 150,
-  //                         width: "80%",
-  //                         backgroundColor: Colors.COLOR_THEME,
-  //                         borderTopRightRadius: 50,
-  //                         borderBottomRightRadius: 50,
-  //                         elevation: 5,
-  //                         justifyContent: 'center'
-  //                     }}>
-  //                         <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>{Session.companyPackages[i].PackagePrice}  $</Text>
-  //                         <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>{Session.companyPackages[i].PackageDuration}</Text>
-  //                     </View>
-  //                 </View>
-  //                 <View style={{ margin: 30 }}>
-  //                     <FlatList
-  //                         data={arr1}
-  //                         renderItem={({ item, index }) =>
-  //                             <View style={{
-  //                                 flexDirection: 'row',
-  //                             }}>
-
-  //                                 <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-  //                                 <Text style={{
-  //                                     marginLeft: 10,
-  //                                     fontSize: FontSize.FONT_SIZE_18
-  //                                 }}>{arr1[index]}</Text>
-
-  //                             </View>
-  //                         }
-  //                     />
-
-  //                 </View>
-
-  //             </View>
-  //         )
-  //     }
-  //     setpackageList(packageList)
-  //     forceUpdate()
-  // }
-
   return (
     <View
       style={{
@@ -419,7 +459,7 @@ const Package = ({ navigation }) => {
       </View>
 
       <Swiper
-        onIndexChanged={index => console.log(index)}
+        onIndexChanged={index => onChangePlan(index)}
         // showsPagination={false}
         loop={false}
         style={{
@@ -428,163 +468,17 @@ const Package = ({ navigation }) => {
         }}
         activeDotColor={Colors.COLOR_BLACK}>
         {loadPackages()}
-
-        {/* <View>
-                    
-                    <Text style={TextStyle.Styles.PACKAGE_STYLE}>BASIC</Text>
-                    <View style={{
-                        height: 150,
-                        width: "80%",
-                        backgroundColor: Colors.COLOR_THEME,
-                        borderTopRightRadius: 50,
-                        borderBottomRightRadius: 50,
-                        elevation: 5,
-                        justifyContent: 'center'
-                    }}>
-                        <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>14.99  $</Text>
-                        <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>/Month</Text>
-                    </View>
-
-                    <View style={{
-
-                        margin: 40
-                    }}>
-                        <View style={{
-                            flexDirection: 'row',
-                        }}>
-
-                            <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-                            <Text style={{
-                                marginLeft: 10,
-                                fontSize: FontSize.FONT_SIZE_18
-                            }}>5 chat responses per week</Text>
-
-                        </View>
-
-                        <View style={{
-                            flexDirection: 'row',
-                            marginTop: 10,
-                        }}>
-
-                            <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-                            <Text style={{
-                                marginLeft: 10,
-                                fontSize: FontSize.FONT_SIZE_18
-                            }}>unlimited photo uploads</Text>
-
-                        </View>
-
-
-
-                        <View style={{
-                            width: "90%",
-                            marginTop: 20,
-                            backgroundColor: 'red',
-                            borderWidth: 1
-                        }}></View>
-
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate("BottomTab", 1)}
-                            style={{
-                                height: 50,
-                                width: 150,
-                                borderColor: Colors.COLOR_THEME,
-                                borderWidth: 1,
-                                alignSelf: 'center',
-                                marginVertical: 40,
-                                borderRadius: 30,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                            <Text style={{
-                                fontSize: FontSize.FONT_SIZE_16,
-                                fontWeight: 'bold',
-                                color: Colors.COLOR_BLACK
-                            }}>Buy Now</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-
-                <View>
-                    <Text style={TextStyle.Styles.PACKAGE_STYLE}>VIP</Text>
-                    <View style={{
-                        height: 150,
-                        width: "80%",
-                        backgroundColor: "#b3b154",
-                        borderTopRightRadius: 50,
-                        borderBottomRightRadius: 50,
-                        elevation: 5,
-                        justifyContent: 'center'
-                    }}>
-                        <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>19.99  $</Text>
-                        <Text style={TextStyle.Styles.PACKAGE_TEXT_STYLE}>/Month</Text>
-                    </View>
-
-                    <View style={{
-
-                        margin: 40
-                    }}>
-                        <View style={{
-                            flexDirection: 'row',
-                        }}>
-
-                            <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-                            <Text style={{
-                                marginLeft: 10,
-                                fontSize: FontSize.FONT_SIZE_18
-                            }}>unlimited chat responses</Text>
-
-                        </View>
-
-                        <View style={{
-                            flexDirection: 'row',
-                            marginTop: 10,
-                        }}>
-
-                            <Icon name='check' size={20} color={Colors.COLOR_BLACK} />
-                            <Text style={{
-                                marginLeft: 10,
-                                fontSize: FontSize.FONT_SIZE_18
-                            }}>unlimited photo uploads</Text>
-
-                        </View>
-
-                        <View style={{
-                            width: "90%",
-                            marginTop: 20,
-                            backgroundColor: 'red',
-                            borderWidth: 1
-                        }}></View>
-
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate("BottomTab", 3)}
-                            style={{
-                                height: 50,
-                                width: 150,
-                                borderColor: Colors.COLOR_THEME,
-                                borderWidth: 1,
-                                alignSelf: 'center',
-                                marginVertical: 40,
-                                borderRadius: 30,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                            <Text style={{
-                                fontSize: FontSize.FONT_SIZE_16,
-                                fontWeight: 'bold',
-                                color: Colors.COLOR_BLACK
-                            }}>Buy Now</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View> */}
       </Swiper>
 
       <Alerts
+        title={alertTitle}
         showAlert={openAlert}
         buttonTxt={buttonTxt}
+        cancelTxt={cancelButtonTxt}
+        showCancelButton={alertShowCancelButton}
         msg={msg}
-        onConfirmPressed={() => confirmPress()}></Alerts>
+        onConfirmPressed={() => confirmPress()}
+        onCancelPressed={() => cancelPress()}></Alerts>
     </View>
   );
 };
